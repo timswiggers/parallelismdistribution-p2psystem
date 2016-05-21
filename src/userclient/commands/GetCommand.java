@@ -9,6 +9,14 @@ public class GetCommand implements Command {
 
     @Override
     public void execute(UserInteraction user) {
+        try {
+            executeGet(user);
+        } catch (Exception e) {
+
+        }
+    }
+
+    private void executeGet(UserInteraction user) {
 
     }
 }

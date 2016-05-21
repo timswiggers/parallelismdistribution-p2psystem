@@ -27,16 +27,12 @@ public class PutCommand implements Command {
     public void execute(UserInteraction user) {
         try {
             executePut(user);
-        } catch (IOException e) {
-            user.sayError(e);
-        } catch (JAXBException e) {
-            user.sayError(e);
-        } catch (NoSuchAlgorithmException e) {
+        } catch (IOException | JAXBException | NoSuchAlgorithmException e) {
             user.sayError(e);
         }
     }
 
-    public void executePut(UserInteraction user) throws IOException, JAXBException, NoSuchAlgorithmException {
+    private void executePut(UserInteraction user) throws IOException, JAXBException, NoSuchAlgorithmException {
         String fileName = user.askForValue("filename", "383MB.exe");
         if(fileName == null) {
             return;
