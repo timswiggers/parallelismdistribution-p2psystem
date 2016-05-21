@@ -7,9 +7,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-/**
- * Created by timsw on 01/05/2016.
- */
 public class LocalFileSystem implements FileAccess {
     private Path appRoot;
 
