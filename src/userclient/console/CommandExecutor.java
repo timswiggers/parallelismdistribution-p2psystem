@@ -14,13 +14,14 @@ import java.util.function.Supplier;
  */
 public class CommandExecutor {
     private final UserInteraction user;
-    private final CommandFactory commandFactory;
 
     private final HashMap<String, Supplier<Command>> executorFactories;
 
     public CommandExecutor(UserInteraction user, FileAccess files) {
         this.user = user;
-        this.commandFactory = new DefaultCommandFactory(files);
+
+        CommandFactory commandFactory = new DefaultCommandFactory(files);
+
         executorFactories = new HashMap<>();
         executorFactories.put("put", commandFactory::CreatePutCommand);
         executorFactories.put("get", commandFactory::CreateGetCommand);
