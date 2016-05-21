@@ -15,14 +15,26 @@ import java.util.stream.Collectors;
  */
 public class ListCommand implements Command {
 
-    private final FileSystemIndex index;
+    private final FileAccess files;
 
-    public ListCommand(FileAccess files) throws IOException, JAXBException {
-        this.index = new FileSystemIndex(files);
+    public ListCommand(FileAccess files)  {
+        this.files = files;
     }
 
     @Override
     public void execute(UserInteraction user) {
+        try {
+            executeList(user);
+        } catch (IOException e) {
+            user.sayError(e);
+        } catch (JAXBException e) {
+            user.sayError(e);
+        }
+    }
+
+    public void executeList(UserInteraction user) throws IOException, JAXBException {
+        FileSystemIndex index = new FileSystemIndex(files);
+
         List<FileSystemEntry> entries = index.list();
         List<String> entriesAsStrings = entries.stream().map(ListCommand::toPrettyString).collect(Collectors.toList());
 

@@ -2,9 +2,6 @@ package userclient.commands;
 
 import io.local.FileAccess;
 
-import javax.xml.bind.JAXBException;
-import java.io.IOException;
-
 /**
  * Created by timsw on 08/05/2016.
  */
@@ -27,14 +24,5 @@ public class DefaultCommandFactory implements CommandFactory {
     }
 
     @Override
-    public Command CreateListCommand() {
-        try {
-            return new ListCommand(files);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JAXBException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+    public Command CreateListCommand()  { return new ListCommand(files); }
 }
