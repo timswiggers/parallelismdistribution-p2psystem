@@ -4,16 +4,17 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
  * Created by timsw on 01/05/2016.
  */
 public class LocalFileSystem implements FileAccess {
-    private String baseDir;
+    private Path appRoot;
 
-    public LocalFileSystem(String baseDir) {
-        this.baseDir = baseDir;
+    public LocalFileSystem(Path appRoot) {
+        this.appRoot = appRoot;
     }
 
     public byte[] getFileBytes(String fileName) throws IOException {
@@ -39,7 +40,8 @@ public class LocalFileSystem implements FileAccess {
     private String revolvePath(String fileName) {
 
         // TODO: Handle relative or absolute path
+        String localRoot = appRoot.toString();
 
-        return Paths.get(baseDir, fileName).toAbsolutePath().toString();
+        return Paths.get(localRoot, fileName).toAbsolutePath().toString();
     }
 }

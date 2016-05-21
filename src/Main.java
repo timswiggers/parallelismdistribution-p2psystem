@@ -3,12 +3,15 @@ import userclient.console.ConsoleUserInteraction;
 import io.local.FileAccess;
 import io.local.LocalFileSystem;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 public class Main {
     public static void main(String[] args)
     {
         try {
-            String mainDir = System.getProperty("user.dir");
-            FileAccess files = new LocalFileSystem(mainDir);
+            Path appRoot = Paths.get(System.getProperty("user.home"), "p2p");
+            FileAccess files = new LocalFileSystem(appRoot);
 
             ConsoleUserInteraction user = new ConsoleUserInteraction(System.in, System.out);
             CommandExecutor commandExecutor = new CommandExecutor(user, files);
@@ -19,7 +22,7 @@ public class Main {
             user.say(
                     "Parallelism and Distributed Systems - Project 2016 - P2P File System\n" +
                     "Created by Tim Swiggers (0528435)\n" +
-                    "Running from " + mainDir + "\n");
+                    "Running from " + appRoot.toString() + "\n");
             commandExecutor.executeUserCommands();
 
         } catch(Exception e){
