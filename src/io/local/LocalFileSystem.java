@@ -15,7 +15,7 @@ public class LocalFileSystem implements FileAccess {
     }
 
     public byte[] getFileBytes(String fileName) throws IOException {
-        String filePath = revolvePath(fileName);
+        String filePath = resolvePath(fileName);
         File file = new File(filePath);
 
         // TODO: Handle file not existing => return new byte[0]
@@ -26,15 +26,22 @@ public class LocalFileSystem implements FileAccess {
     }
 
     public void saveFileBytes(String fileName, byte[] bytes) throws IOException {
-        String filePath = revolvePath(fileName);
+        String filePath = resolvePath(fileName);
         File file = new File(filePath);
 
-        // TODO: Handle file already existing. Ask for cancel/overwrite.
+        if(!file.exists()){
+            file.createNewFile();
+        }
 
         FileUtils.writeByteArrayToFile(file, bytes);
     }
 
-    private String revolvePath(String fileName) {
+    public boolean exists(String fileName) {
+        String filePath = resolvePath(fileName);
+        return new File(filePath).exists();
+    }
+
+    private String resolvePath(String fileName) {
 
         // TODO: Handle relative or absolute path
         String localRoot = appRoot.toString();

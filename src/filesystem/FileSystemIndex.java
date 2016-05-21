@@ -6,10 +6,7 @@ import filesystem.xml.FileSystemEntriesJAXB;
 import io.local.FileAccess;
 
 import javax.xml.bind.JAXBException;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -49,11 +46,13 @@ public class FileSystemIndex {
     }
 
     private void saveChanges() throws IOException, JAXBException {
-        OutputStream xmlStream = new ByteOutputStream();
+        ByteOutputStream xmlStream = new ByteOutputStream();
         FileSystemEntriesJAXB.write(entries, xmlStream);
+
+        files.saveFileBytes(fileName, xmlStream.getBytes());
     }
 
     private boolean indexFilesExists(){
-        return new File(fileName).exists();
+        return files.exists(fileName);
     }
 }

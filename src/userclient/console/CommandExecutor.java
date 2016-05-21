@@ -22,8 +22,10 @@ public class CommandExecutor {
         this.user = user;
         this.commandFactory = new DefaultCommandFactory(files);
         executorFactories = new HashMap<>();
-        executorFactories.put("hash", commandFactory::CreateHashCommand);
+        executorFactories.put("put", commandFactory::CreatePutCommand);
+        executorFactories.put("get", commandFactory::CreateGetCommand);
         executorFactories.put("list", commandFactory::CreateListCommand);
+        executorFactories.put("hash", commandFactory::CreateHashCommand);
     }
 
     public void executeUserCommands() {
