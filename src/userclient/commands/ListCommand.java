@@ -25,9 +25,7 @@ public class ListCommand implements Command {
     public void execute(UserInteraction user) {
         try {
             executeList(user);
-        } catch (IOException e) {
-            user.sayError(e);
-        } catch (JAXBException e) {
+        } catch (IOException | JAXBException e) {
             user.sayError(e);
         }
     }
