@@ -47,9 +47,9 @@ public class ListCommand implements Command {
     private static String toPrettyString(FileSystemEntry entry){
         String name = entry.getName();
         String size = humanReadableByteCount(entry.getSize(), true);
-        String hash = entry.getHash().substring(0, 8) + "...";
+        String hash = entry.getHash();
 
-        return String.format("%s %s %s", name, size, hash);
+        return String.format("%-30s %-30s %s", name, size, hash);
     }
 
     // Credit: http://stackoverflow.com/questions/3758606/how-to-convert-byte-size-into-human-readable-format-in-java

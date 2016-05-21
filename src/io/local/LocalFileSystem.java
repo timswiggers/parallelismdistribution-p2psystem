@@ -41,6 +41,11 @@ public class LocalFileSystem implements FileAccess {
         return new File(filePath).exists();
     }
 
+    @Override
+    public String getPath(String fileName) {
+        return resolvePath(fileName);
+    }
+
     private String resolvePath(String fileName) {
 
         // TODO: Handle relative or absolute path

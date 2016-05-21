@@ -5,7 +5,6 @@ import filesystem.FileSystemEntry;
 import javax.xml.bind.*;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.FileSystem;
 import java.util.List;
 import java.util.stream.Collectors;
 

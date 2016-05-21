@@ -43,7 +43,8 @@ public class ConsoleUserInteraction implements UserInteraction {
 
     @Override
     public void sayError(Exception error) {
-        out.println("ERROR! - " + error.getMessage());
+        out.println("ERROR! - " + drillDownMessage(error));
+        if(error != null) error.printStackTrace();
     }
 
     @Override
@@ -80,5 +81,16 @@ public class ConsoleUserInteraction implements UserInteraction {
             return defaultValue;
         }
         return answer.toLowerCase().equals("y") || answer.toLowerCase().equals("yes");
+    }
+
+    private String drillDownMessage(Throwable e){
+        if(e == null) return "";
+
+        Throwable cause;
+
+        while((cause = e.getCause()) != null) {
+            e = e.getCause();
+        }
+        return e.getMessage();
     }
 }

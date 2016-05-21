@@ -1,6 +1,5 @@
 package filesystem;
 
-import com.sun.xml.internal.messaging.saaj.util.ByteInputStream;
 import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
 import filesystem.xml.FileSystemEntriesJAXB;
 import io.local.FileAccess;
@@ -36,23 +35,24 @@ public class FileSystemIndex {
     }
 
     private Collection<FileSystemEntry> getEntries() throws IOException, JAXBException {
-        if(!indexFilesExists())
+        if(!indexFileExists())
             return new ArrayList<>();
 
-        byte[] xmlBytes = files.getFileBytes(fileName);
-        InputStream xmlStream = new ByteInputStream(xmlBytes, xmlBytes.length);
-
-        return FileSystemEntriesJAXB.read(xmlStream);
+        return FileSystemEntriesJAXB.read(new FileInputStream(files.getPath(fileName)));
     }
 
     private void saveChanges() throws IOException, JAXBException {
         ByteOutputStream xmlStream = new ByteOutputStream();
         FileSystemEntriesJAXB.write(entries, xmlStream);
 
-        files.saveFileBytes(fileName, xmlStream.getBytes());
+        // fix: JAXB appends null bytes at the end
+        String asString = new String(xmlStream.getBytes());
+        asString = asString.trim();
+
+        files.saveFileBytes(fileName, asString.getBytes());
     }
 
-    private boolean indexFilesExists(){
+    private boolean indexFileExists(){
         return files.exists(fileName);
     }
 }
