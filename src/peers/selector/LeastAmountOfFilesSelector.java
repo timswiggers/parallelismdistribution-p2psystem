@@ -20,9 +20,14 @@ public class LeastAmountOfFilesSelector implements PeerSelector {
     }
 
     public PeerInfo select() {
+        Collection<PeerInfo> peers = peerIndex.list();
+        if(peers.size() == 0) {
+            return null;
+        }
+
         Collection<FileSystemEntry> storedFiles = fileIndex.list();
         if(storedFiles.size() == 0) {
-            return peerIndex.list().stream().findFirst().get();
+            return peers.stream().findFirst().get();
         }
 
         Map<String, List<FileSystemEntry>> filesByPeerId = storedFiles.stream().collect(Collectors.groupingBy(FileSystemEntry::getPeerId));

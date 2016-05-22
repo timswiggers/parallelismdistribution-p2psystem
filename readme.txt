@@ -64,3 +64,4 @@ Future improvements:
 Conventions in code functionality:
 
 -   Peers return null when the file could not be located.
+-   Peer selectors return null when no peer could be selected (due to inavailability).
