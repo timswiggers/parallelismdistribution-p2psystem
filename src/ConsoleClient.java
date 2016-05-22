@@ -6,7 +6,7 @@ import io.local.LocalFileSystem;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class Main {
+public class ConsoleClient {
     public static void main(String[] args)
     {
         try {
