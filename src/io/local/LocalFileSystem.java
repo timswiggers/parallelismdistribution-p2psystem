@@ -1,11 +1,11 @@
 package io.local;
 
-import org.apache.commons.io.FileUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import static org.apache.commons.io.FileUtils.*;
 
 public class LocalFileSystem implements FileAccess {
     private Path appRoot;
@@ -20,9 +20,7 @@ public class LocalFileSystem implements FileAccess {
 
         // TODO: Handle file not existing => return new byte[0]
 
-        byte[] bytes = FileUtils.readFileToByteArray(file);
-
-        return bytes; //  Never return null
+        return readFileToByteArray(file); //  Never return null
     }
 
     public void saveFileBytes(String fileName, byte[] bytes) throws IOException {
@@ -30,10 +28,13 @@ public class LocalFileSystem implements FileAccess {
         File file = new File(filePath);
 
         if(!file.exists()){
-            file.createNewFile();
+            boolean creationSuccess = file.createNewFile();
+            if(!creationSuccess) {
+                throw new IOException("Could not create index.xml file");
+            }
         }
 
-        FileUtils.writeByteArrayToFile(file, bytes);
+        writeByteArrayToFile(file, bytes);
     }
 
     public boolean exists(String fileName) {

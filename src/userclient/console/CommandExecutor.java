@@ -9,9 +9,6 @@ import io.local.FileAccess;
 import java.util.HashMap;
 import java.util.function.Supplier;
 
-/**
- * Created by timsw on 08/05/2016.
- */
 public class CommandExecutor {
     private final UserInteraction user;
 

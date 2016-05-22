@@ -3,15 +3,11 @@ package filesystem.xml;
 import filesystem.FileSystemEntry;
 
 import javax.xml.bind.*;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Created by timsw on 21/05/2016.
- */
 public final class FileSystemEntriesJAXB {
 
     // Credits: http://howtodoinjava.com/jaxb/jaxb-exmaple-marshalling-and-unmarshalling-list-or-set-of-objects/

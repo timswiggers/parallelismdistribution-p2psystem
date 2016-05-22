@@ -11,9 +11,6 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.Instant;
 
-/**
- * Created by timsw on 07/05/2016.
- */
 public class HashCommand implements Command {
     private final FileAccess files;
 

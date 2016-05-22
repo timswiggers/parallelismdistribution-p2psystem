@@ -1,8 +1,5 @@
 package filesystem;
 
-/**
- * Created by timsw on 21/05/2016.
- */
 public class FileSystemEntry {
 
     private final String name;

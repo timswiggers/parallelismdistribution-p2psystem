@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-
 /**
  * Created by timsw on 21/05/2016.
  */

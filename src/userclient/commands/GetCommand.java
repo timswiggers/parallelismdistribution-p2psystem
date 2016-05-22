@@ -7,9 +7,6 @@ import userclient.UserInteraction;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
-/**
- * Created by timsw on 07/05/2016.
- */
 public class GetCommand implements Command {
 
     private final FileAccess files;

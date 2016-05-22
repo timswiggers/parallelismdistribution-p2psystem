@@ -2,9 +2,6 @@ package userclient.commands;
 
 import io.local.FileAccess;
 
-/**
- * Created by timsw on 08/05/2016.
- */
 public class DefaultCommandFactory implements CommandFactory {
 
     private final FileAccess files;

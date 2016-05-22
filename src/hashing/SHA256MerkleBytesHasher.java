@@ -2,15 +2,10 @@ package hashing;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
 import java.util.Arrays;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.RecursiveTask;
+import java.util.concurrent.*;
 
-/**
- * Created by timsw on 30/04/2016.
- */
 public class SHA256MerkleBytesHasher implements BytesHasher {
     public static final String HashAlgorithm = "SHA-256";
 

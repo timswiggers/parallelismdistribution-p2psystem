@@ -8,9 +8,6 @@ import javax.xml.bind.JAXBException;
 import java.io.*;
 import java.util.*;
 
-/**
- * Created by timsw on 21/05/2016.
- */
 public class FileSystemIndex {
     private static final String fileName = "index.xml";
     private final Set<FileSystemEntry> entries;

@@ -2,9 +2,6 @@ package hashing;
 
 import java.io.PrintStream;
 
-/**
- * Created by timsw on 30/04/2016.
- */
 public final class BytesAsHexPrinter {
 
     public static String toString(byte[] bytes){

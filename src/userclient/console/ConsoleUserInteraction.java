@@ -4,9 +4,6 @@ import userclient.UserInteraction;
 
 import java.io.*;
 
-/**
- * Created by timsw on 08/05/2016.
- */
 public class ConsoleUserInteraction implements UserInteraction {
 
     private final BufferedReader in;

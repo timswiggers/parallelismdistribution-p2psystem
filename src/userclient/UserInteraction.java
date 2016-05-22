@@ -1,8 +1,5 @@
 package userclient;
 
-/**
- * Created by timsw on 07/05/2016.
- */
 public interface UserInteraction {
     void newLine();
     void say(String message);

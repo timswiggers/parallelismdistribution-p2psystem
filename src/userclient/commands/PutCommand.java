@@ -12,9 +12,6 @@ import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
-/**
- * Created by timsw on 21/05/2016.
- */
 public class PutCommand implements Command {
 
     private final FileAccess files;
