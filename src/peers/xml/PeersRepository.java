@@ -1,8 +1,6 @@
 package peers.xml;
 
-import filesystem.FileSystemEntry;
-import filesystem.xml.XmlFileSystemEntries;
-import filesystem.xml.XmlFileSystemEntry;
+import peers.PeerInfo;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -18,46 +16,44 @@ public class PeersRepository {
 
     // Credits: http://howtodoinjava.com/jaxb/jaxb-exmaple-marshalling-and-unmarshalling-list-or-set-of-objects/
 
-    public static List<FileSystemEntry> read(InputStream stream) throws JAXBException
+    public static List<PeerInfo> read(InputStream stream) throws JAXBException
     {
-        JAXBContext jaxbContext = JAXBContext.newInstance(XmlFileSystemEntries.class);
+        JAXBContext jaxbContext = JAXBContext.newInstance(XmlPeers.class);
         Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 
-        XmlFileSystemEntries entries = (XmlFileSystemEntries) jaxbUnmarshaller.unmarshal(stream);
+        XmlPeers entries = (XmlPeers) jaxbUnmarshaller.unmarshal(stream);
 
-        return entries.getEntries().stream().map(PeersRepository::mapFromXml).collect(Collectors.toList());
+        return entries.getPeers().stream().map(PeersRepository::mapFromXml).collect(Collectors.toList());
     }
 
-    public static void write(Collection<FileSystemEntry> entries, OutputStream stream) throws JAXBException
+    public static void write(Collection<PeerInfo> peers, OutputStream stream) throws JAXBException
     {
-        JAXBContext jaxbContext = JAXBContext.newInstance(XmlFileSystemEntries.class);
+        JAXBContext jaxbContext = JAXBContext.newInstance(XmlPeers.class);
         Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
 
         jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-        XmlFileSystemEntries xmlEntries = new XmlFileSystemEntries();
-        xmlEntries.setEntries(entries.stream().map(PeersRepository::mapToXml).collect(Collectors.toList()));
+        XmlPeers xmlPeers = new XmlPeers();
+        xmlPeers.setPeers(peers.stream().map(PeersRepository::mapToXml).collect(Collectors.toList()));
 
-        jaxbMarshaller.marshal(xmlEntries, stream);
+        jaxbMarshaller.marshal(xmlPeers, stream);
     }
 
-    private static FileSystemEntry mapFromXml(XmlFileSystemEntry xmlEntry) {
-        String name = xmlEntry.getName();
-        int size = xmlEntry.getSize();
-        String hash = xmlEntry.getHash();
-        String peerId = xmlEntry.getPeerId();
+    private static PeerInfo mapFromXml(XmlPeer xmlPeer) {
+        String id = xmlPeer.getId();
+        String ipAddress = xmlPeer.getIpAddress();
+        int port = xmlPeer.getPort();
 
-        return new FileSystemEntry(name, size, hash, peerId);
+        return new PeerInfo(id, ipAddress, port);
     }
 
-    private static XmlFileSystemEntry mapToXml(FileSystemEntry entry) {
-        XmlFileSystemEntry xmlEntry = new XmlFileSystemEntry();
+    private static XmlPeer mapToXml(PeerInfo peer) {
+        XmlPeer xmlPeer = new XmlPeer();
 
-        xmlEntry.setName(entry.getName());
-        xmlEntry.setSize(entry.getSize());
-        xmlEntry.setHash(entry.getHash());
-        xmlEntry.setPeerId(entry.getPeerId());
+        xmlPeer.setId(peer.getId());
+        xmlPeer.setIpAddress(peer.getIpAddress());
+        xmlPeer.setPort(peer.getPort());
 
-        return xmlEntry;
+        return xmlPeer;
     }
 }

@@ -15,7 +15,6 @@ public class FileSystemIndex {
 
     public FileSystemIndex(FileAccess files) throws IOException, JAXBException {
         this.files = files;
-
         this.entries = new HashSet<>(getEntries());
     }
 
