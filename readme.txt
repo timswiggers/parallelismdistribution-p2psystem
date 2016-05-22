@@ -52,10 +52,11 @@ Hyper-V - Data Execution Protection	                    Yes
 Performance:
 
 - Hashing
-    Try to reuse MessageDigest instance as much as possible by resetting existing ones
+    Try to reuse MessageDigest instance as much as possible by resetting existing ones.
 
 Future improvements:
 
 -   Separate client and vault in separate processes. (Client does not have interaction with own vault anyway)
     The vault should be accessible at all times when machine is running. (Run as a background process)
+-   Further try to reuse the MessageDigest instances.
 
