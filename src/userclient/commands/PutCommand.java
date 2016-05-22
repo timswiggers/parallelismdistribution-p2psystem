@@ -58,6 +58,11 @@ public class PutCommand implements Command {
         PeerSelector peerSelector = new LeastAmountOfFilesSelector(fileIndex, peerIndex);
         PeerInfo peer = peerSelector.select();
 
+        if(peer == null) {
+            // TODO: get more peers! and select again.
+            peer = peerSelector.select();
+        }
+
         RemoteVault vault = new RemoteVault(peer);
         vault.uploadFile(fileName, bytes);
 
