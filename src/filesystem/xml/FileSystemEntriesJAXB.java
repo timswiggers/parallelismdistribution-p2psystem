@@ -5,6 +5,7 @@ import filesystem.FileSystemEntry;
 import javax.xml.bind.*;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,7 +26,7 @@ public final class FileSystemEntriesJAXB {
         return entries.getEntries().stream().map(FileSystemEntriesJAXB::mapFromXml).collect(Collectors.toList());
     }
 
-    public static void write(List<FileSystemEntry> entries, OutputStream stream) throws JAXBException
+    public static void write(Collection<FileSystemEntry> entries, OutputStream stream) throws JAXBException
     {
         JAXBContext jaxbContext = JAXBContext.newInstance(XmlFileSystemEntries.class);
         Marshaller jaxbMarshaller = jaxbContext.createMarshaller();

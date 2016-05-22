@@ -7,6 +7,7 @@ import io.local.FileAccess;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,7 +34,7 @@ public class ListCommand implements Command {
     public void executeList(UserInteraction user) throws IOException, JAXBException {
         FileSystemIndex index = new FileSystemIndex(files);
 
-        List<FileSystemEntry> entries = index.list();
+        Collection<FileSystemEntry> entries = index.list();
         List<String> entriesAsStrings = entries.stream().map(ListCommand::toPrettyString).collect(Collectors.toList());
 
         if(entriesAsStrings.isEmpty()){

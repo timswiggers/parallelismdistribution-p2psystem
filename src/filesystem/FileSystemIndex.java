@@ -6,22 +6,20 @@ import io.local.FileAccess;
 
 import javax.xml.bind.JAXBException;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by timsw on 21/05/2016.
  */
 public class FileSystemIndex {
     private static final String fileName = "index.xml";
-    private final List<FileSystemEntry> entries;
+    private final Set<FileSystemEntry> entries;
     private final FileAccess files;
 
     public FileSystemIndex(FileAccess files) throws IOException, JAXBException {
         this.files = files;
 
-        this.entries = new ArrayList<>(getEntries());
+        this.entries = new HashSet<>(getEntries());
     }
 
     public void add(FileSystemEntry entry) throws IOException, JAXBException {
@@ -30,8 +28,12 @@ public class FileSystemIndex {
         saveChanges();
     }
 
-    public List<FileSystemEntry> list() {
+    public Collection<FileSystemEntry> list() {
         return entries;
+    }
+
+    public boolean contains(String fileName) {
+        return entries.stream().filter(e -> e.getName().equals(fileName)).count() == 1;
     }
 
     private Collection<FileSystemEntry> getEntries() throws IOException, JAXBException {

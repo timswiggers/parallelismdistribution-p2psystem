@@ -17,9 +17,7 @@ public class DefaultCommandFactory implements CommandFactory {
     public Command CreatePutCommand() { return new PutCommand(files); }
 
     @Override
-    public Command CreateGetCommand() {
-        return new GetCommand();
-    }
+    public Command CreateGetCommand() { return new GetCommand(files); }
 
     @Override
     public Command CreateHashCommand() {
