@@ -59,6 +59,7 @@ Future improvements:
 -   Separate client and vault in separate processes. (Client does not have interaction with own vault anyway)
     The vault should be accessible at all times when machine is running. (Run as a background process)
 -   Further try to reuse the MessageDigest instances.
+-   Select a peer (when putting files) based on the available disk space (instead of the least number of files).
 
 Conventions in code functionality:
 
