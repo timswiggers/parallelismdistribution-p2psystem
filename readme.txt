@@ -60,3 +60,6 @@ Future improvements:
     The vault should be accessible at all times when machine is running. (Run as a background process)
 -   Further try to reuse the MessageDigest instances.
 
+Conventions in code functionality:
+
+-   Peers return null when the file could not be located.

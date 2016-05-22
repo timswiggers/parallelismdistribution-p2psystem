@@ -4,6 +4,7 @@ public interface UserInteraction {
     void newLine();
     void say(String message);
     void sayList(String... messages);
+    void sayError(String errorMessage);
     void sayError(Exception error);
     String prompt(String prompt);
     String askForValue(String question);

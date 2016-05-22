@@ -32,6 +32,11 @@ public class ConsoleUserInteraction implements UserInteraction {
     }
 
     @Override
+    public void sayError(String errorMessage) {
+        out.println("ERROR! - " + errorMessage);
+    }
+
+    @Override
     public String prompt(String prompt) {
         out.printf("%s>", prompt);
         String value = safeReadLine();

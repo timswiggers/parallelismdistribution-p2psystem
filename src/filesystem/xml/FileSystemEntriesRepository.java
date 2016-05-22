@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public final class FileSystemEntriesJAXB {
+public final class FileSystemEntriesRepository {
 
     // Credits: http://howtodoinjava.com/jaxb/jaxb-exmaple-marshalling-and-unmarshalling-list-or-set-of-objects/
 
@@ -19,7 +19,7 @@ public final class FileSystemEntriesJAXB {
 
         XmlFileSystemEntries entries = (XmlFileSystemEntries) jaxbUnmarshaller.unmarshal(stream);
 
-        return entries.getEntries().stream().map(FileSystemEntriesJAXB::mapFromXml).collect(Collectors.toList());
+        return entries.getEntries().stream().map(FileSystemEntriesRepository::mapFromXml).collect(Collectors.toList());
     }
 
     public static void write(Collection<FileSystemEntry> entries, OutputStream stream) throws JAXBException
@@ -30,7 +30,7 @@ public final class FileSystemEntriesJAXB {
         jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
         XmlFileSystemEntries xmlEntries = new XmlFileSystemEntries();
-        xmlEntries.setEntries(entries.stream().map(FileSystemEntriesJAXB::mapToXml).collect(Collectors.toList()));
+        xmlEntries.setEntries(entries.stream().map(FileSystemEntriesRepository::mapToXml).collect(Collectors.toList()));
 
         jaxbMarshaller.marshal(xmlEntries, stream);
     }

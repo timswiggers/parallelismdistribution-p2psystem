@@ -1,7 +1,7 @@
 package filesystem;
 
 import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
-import filesystem.xml.FileSystemEntriesJAXB;
+import filesystem.xml.FileSystemEntriesRepository;
 import io.local.FileAccess;
 
 import javax.xml.bind.JAXBException;
@@ -33,16 +33,26 @@ public class FileSystemIndex {
         return entries.stream().filter(e -> e.getName().equals(fileName)).count() == 1;
     }
 
+    public FileSystemEntry get(String fileName) {
+        Optional<FileSystemEntry> possibleEntry = entries.stream().filter(e -> e.getName().equals(fileName)).findFirst();
+
+        if(!possibleEntry.isPresent()) {
+            throw new RuntimeException("Unknown file '" + fileName + "'");
+        }
+
+        return possibleEntry.get();
+    }
+
     private Collection<FileSystemEntry> getEntries() throws IOException, JAXBException {
         if(!indexFileExists())
             return new ArrayList<>();
 
-        return FileSystemEntriesJAXB.read(new FileInputStream(files.getPath(fileName)));
+        return FileSystemEntriesRepository.read(new FileInputStream(files.getPath(fileName)));
     }
 
     private void saveChanges() throws IOException, JAXBException {
         ByteOutputStream xmlStream = new ByteOutputStream();
-        FileSystemEntriesJAXB.write(entries, xmlStream);
+        FileSystemEntriesRepository.write(entries, xmlStream);
 
         // fix: JAXB appends null bytes at the end
         String asString = new String(xmlStream.getBytes());
