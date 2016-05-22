@@ -12,11 +12,14 @@ public class GetCommand implements Command {
         try {
             executeGet(user);
         } catch (Exception e) {
-
+            user.sayError(e);
         }
     }
 
     private void executeGet(UserInteraction user) {
-
+        String fileName = user.askForValue("filename", "383MB.exe");
+        if(fileName == null) {
+            return;
+        }
     }
 }
