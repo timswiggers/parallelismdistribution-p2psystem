@@ -10,10 +10,14 @@ public class RemoteVault {
     }
 
     public boolean connect() {
-        return false;
+        return false; // TODO: implement
     }
 
     public byte[] downloadFile(String name) {
-        return new byte[0];
+        return new byte[0]; // TODO: implement
+    }
+
+    public void uploadFile(String name, byte[] bytes) {
+        // TODO: implement
     }
 }

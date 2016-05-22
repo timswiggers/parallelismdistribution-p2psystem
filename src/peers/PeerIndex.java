@@ -18,6 +18,10 @@ public class PeerIndex {
         this.peers = new HashSet<>(getPeers());
     }
 
+    public Collection<PeerInfo> list() {
+        return peers;
+    }
+
     public PeerInfo get(String peerId) {
         Optional<PeerInfo> possibleEntry = peers.stream().filter(e -> e.getId().equals(peerId)).findFirst();
 

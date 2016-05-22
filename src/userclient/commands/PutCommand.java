@@ -6,7 +6,12 @@ import hashing.BytesAsHexPrinter;
 import hashing.BytesHasher;
 import hashing.SHA256MerkleBytesHasher;
 import io.local.FileAccess;
+import peers.PeerIndex;
+import peers.PeerInfo;
+import peers.selector.LeastAmountOfFilesSelector;
+import peers.selector.PeerSelector;
 import userclient.UserInteraction;
+import vault.remote.RemoteVault;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -44,14 +49,19 @@ public class PutCommand implements Command {
         BytesHasher hasher = new SHA256MerkleBytesHasher(1000 * 1000, true);
         byte[] hash = hasher.hash(bytes);
 
-        FileSystemIndex index = new FileSystemIndex(files);
 
-        String name = fileName;
         int size = bytes.length;
         String hashString = BytesAsHexPrinter.toString(hash);
-        String peerId = "unknown"; // TODO: Send file to peer and set peerId on the file entry
 
-        index.add(new FileSystemEntry(name, size, hashString, peerId));
+        FileSystemIndex fileIndex = new FileSystemIndex(files);
+        PeerIndex peerIndex = new PeerIndex(files);
+        PeerSelector peerSelector = new LeastAmountOfFilesSelector(fileIndex, peerIndex);
+        PeerInfo peer = peerSelector.select();
+
+        RemoteVault vault = new RemoteVault(peer);
+        vault.uploadFile(fileName, bytes);
+
+        fileIndex.add(new FileSystemEntry(fileName, size, hashString, peer.getId()));
 
         user.say("File was put on the system");
     }
