@@ -91,7 +91,7 @@ public class ConsoleUserInteraction implements UserInteraction {
         Throwable cause;
 
         while((cause = e.getCause()) != null) {
-            e = e.getCause();
+            e = cause;
         }
         return e.getMessage();
     }
