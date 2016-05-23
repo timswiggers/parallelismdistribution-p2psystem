@@ -1,8 +1,10 @@
+import discovery.DiscoveryClient;
 import userclient.console.CommandExecutor;
 import userclient.console.ConsoleUserInteraction;
 import io.local.FileAccess;
 import io.local.LocalFileSystem;
 
+import java.net.InetAddress;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -13,7 +15,9 @@ public class ConsoleClient {
             Path appRoot = Paths.get(System.getProperty("user.home"), "p2p");
             FileAccess files = new LocalFileSystem(appRoot);
 
-
+            InetAddress discoveryAddress = InetAddress.getLocalHost();
+            DiscoveryClient discoveryClient = new DiscoveryClient(discoveryAddress, DiscoveryService.port);
+            discoveryClient.joinPeers();
 
             // TODO: Check peers, (possibly connect to discovery service)
             // TODO: Spin up vault
