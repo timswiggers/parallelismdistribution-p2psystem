@@ -2,7 +2,6 @@ package peers.network;
 
 import discovery.DiscoveryClient;
 import io.local.FileAccess;
-import userclient.UserInteraction;
 
 import java.io.IOException;
 
