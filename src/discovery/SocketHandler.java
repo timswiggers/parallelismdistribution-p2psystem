@@ -36,7 +36,7 @@ public class SocketHandler extends Thread {
         switch(commandType) {
             case Join: handleJoin(); break;
             case RequestPeers: handleRequestPeers(); break;
-            default: responseError("Unknown command: " + commandType.toString()); break;
+            default: responseError("Cannot handle command: " + commandType.toString()); break;
         }
     }
 
