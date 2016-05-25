@@ -1,5 +1,6 @@
 package userclient.console;
 
+import peers.network.P2PNetwork;
 import userclient.UserInteraction;
 import userclient.commands.Command;
 import userclient.commands.CommandFactory;
@@ -14,10 +15,10 @@ public class CommandExecutor {
 
     private final HashMap<String, Supplier<Command>> executorFactories;
 
-    public CommandExecutor(UserInteraction user, FileAccess files) {
+    public CommandExecutor(UserInteraction user, FileAccess files, P2PNetwork network) {
         this.user = user;
 
-        CommandFactory commandFactory = new DefaultCommandFactory(files);
+        CommandFactory commandFactory = new DefaultCommandFactory(files, network);
 
         executorFactories = new HashMap<>();
         executorFactories.put("put", commandFactory::CreatePutCommand);

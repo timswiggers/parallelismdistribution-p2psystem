@@ -5,6 +5,7 @@ import peers.PeerInfo;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Date;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class SocketHandler extends Thread {
@@ -53,7 +54,7 @@ public class SocketHandler extends Thread {
 
         peers.add(new PeerInfo(peerId, ipAddress, port));
 
-        System.out.printf("Peer joined the network: %s\n", peerId);
+        System.out.printf("%s | Peer joined the network: %s\n", new Date(), peerId);
 
         responseSuccess();
     }

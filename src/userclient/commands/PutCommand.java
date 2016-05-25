@@ -8,6 +8,7 @@ import hashing.SHA256MerkleBytesHasher;
 import io.local.FileAccess;
 import peers.PeerIndex;
 import peers.PeerInfo;
+import peers.network.P2PNetwork;
 import peers.selector.LeastAmountOfFilesSelector;
 import peers.selector.PeerSelector;
 import userclient.UserInteraction;
@@ -21,7 +22,7 @@ public class PutCommand implements Command {
 
     private final FileAccess files;
 
-    public PutCommand(FileAccess files) {
+    public PutCommand(FileAccess files, P2PNetwork network) {
         this.files = files;
     }
 

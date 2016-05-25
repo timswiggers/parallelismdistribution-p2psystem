@@ -26,7 +26,7 @@ public class PeerIndex {
         Optional<PeerInfo> possibleEntry = peers.stream().filter(e -> e.getId().equals(peerId)).findFirst();
 
         if(!possibleEntry.isPresent()) {
-            throw new RuntimeException("Unknown peer '" + fileName + "'");
+            throw new RuntimeException("Unknown peer '" + peerId + "'");
         }
 
         return possibleEntry.get();

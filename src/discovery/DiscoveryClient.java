@@ -30,19 +30,20 @@ public class DiscoveryClient {
 
     private void send(DiscoveryCommandType command) throws IOException {
         InetSocketAddress address = new InetSocketAddress(serverAddress, serverPort);
-        Socket socket = new Socket();
-        socket.connect(address);
 
-        PrintWriter writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+        try (Socket socket = new Socket()) {
 
-        writer.printf("%s\n", command);
-        writer.flush();
+            socket.connect(address);
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        String responseMessage = reader.readLine();
+            try (PrintWriter writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+                 BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
-        System.out.println(responseMessage);
+                writer.printf("%s\n", command);
+                writer.flush();
 
-        socket.close();
+                // TODO: act on result from discovery service
+            }
+
+        }
     }
 }

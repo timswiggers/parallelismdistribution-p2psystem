@@ -7,6 +7,7 @@ import hashing.SHA256MerkleBytesHasher;
 import io.local.FileAccess;
 import peers.PeerInfo;
 import peers.PeerIndex;
+import peers.network.P2PNetwork;
 import userclient.UserInteraction;
 import vault.remote.RemoteVault;
 
@@ -18,9 +19,11 @@ import java.util.Arrays;
 public class GetCommand implements Command {
 
     private final FileAccess files;
+    private final P2PNetwork network;
 
-    public GetCommand(FileAccess files) {
+    public GetCommand(FileAccess files, P2PNetwork network) {
         this.files = files;
+        this.network = network;
     }
 
     @Override
