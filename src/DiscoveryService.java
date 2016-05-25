@@ -22,24 +22,22 @@ public class DiscoveryService {
     private static void runDiscoveryServer(int port) throws IOException {
 
         CopyOnWriteArrayList<PeerInfo> peers = new CopyOnWriteArrayList<>();
-        ServerSocket server = new ServerSocket(port);
 
         System.out.printf("Discovery server running on localhost port %d\n\n", port);
 
-        try {
+        try (ServerSocket server = new ServerSocket(port)) {
             while (true) {
                 try {
                     Socket requestSocket = server.accept();
                     SocketHandler requestHandler = new SocketHandler(requestSocket, peers);
 
+                    // Runs the handling of the request in a new thread, allowing other requests to be handled.
                     requestHandler.start();
 
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-        }finally {
-            server.close();
         }
     }
 }
