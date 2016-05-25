@@ -48,7 +48,7 @@ public class SocketHandler extends Thread {
         String peerId = String.format("%s:%s", ipAddress, port);
 
         if(peers.stream().anyMatch(p -> peerId.equals(p.getId()))){
-            return;
+            return; // don't add this peer twice
         }
 
         peers.add(new PeerInfo(peerId, ipAddress, port));
