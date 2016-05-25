@@ -64,12 +64,12 @@ public class SocketHandler extends Thread {
     }
 
     private void responseSuccess(){
-        responseWriter.printf("%s\n", DiscoveryResponseStatus.Success);
+        responseWriter.printf("%s\n", DiscoveryResponseType.Success);
         responseWriter.flush();
     }
 
     private void responseError(String message){
-        responseWriter.printf("%s\n", DiscoveryResponseStatus.Success);
+        responseWriter.printf("%s\n", DiscoveryResponseType.Success);
         responseWriter.printf("%s\n", message);
         responseWriter.flush();
     }

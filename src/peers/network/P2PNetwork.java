@@ -34,12 +34,19 @@ public class P2PNetwork {
 
     private void connectSafe() throws IOException {
 
+        Collection<PeerInfo> peers = peerIndex.list();
+        Collection<PeerInfo> healthyPeers = doHealthCheckOn(peers);
+
         // TODO:
         // 1 Load in known peers
         // 2 Determine if the network is available enough
         // - Do a health check on known peers
         // - If the network is not healthy enough, contact the discovery service for more peers
         resupplyPeers();
+    }
+
+    private Collection<PeerInfo> doHealthCheckOn(Collection<PeerInfo> peers) {
+        
     }
 
     private void runPeriodicHealthChecks() {
