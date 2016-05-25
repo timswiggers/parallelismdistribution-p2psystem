@@ -13,9 +13,15 @@ public class PeerIndex {
     private final Set<PeerInfo> peers;
     private final FileAccess files;
 
-    public PeerIndex(FileAccess files) throws IOException, JAXBException {
+    public PeerIndex(FileAccess files)  {
         this.files = files;
-        this.peers = new HashSet<>(getPeers());
+        this.peers = new HashSet<>();
+
+        try {
+            this.peers.addAll(getPeers());
+        } catch(IOException | JAXBException e){
+            e.printStackTrace();
+        }
     }
 
     public Collection<PeerInfo> list() {

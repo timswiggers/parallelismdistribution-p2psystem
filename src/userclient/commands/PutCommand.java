@@ -6,24 +6,24 @@ import hashing.BytesAsHexPrinter;
 import hashing.BytesHasher;
 import hashing.SHA256MerkleBytesHasher;
 import io.local.FileAccess;
-import peers.PeerIndex;
 import peers.PeerInfo;
 import peers.network.P2PNetwork;
-import peers.selector.LeastAmountOfFilesSelector;
-import peers.selector.PeerSelector;
 import userclient.UserInteraction;
 import vault.remote.RemoteVault;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Optional;
 
 public class PutCommand implements Command {
 
     private final FileAccess files;
+    private final P2PNetwork network;
 
     public PutCommand(FileAccess files, P2PNetwork network) {
         this.files = files;
+        this.network = network;
     }
 
     @Override
@@ -54,19 +54,18 @@ public class PutCommand implements Command {
         int size = bytes.length;
         String hashString = BytesAsHexPrinter.toString(hash);
 
-        FileSystemIndex fileIndex = new FileSystemIndex(files);
-        PeerIndex peerIndex = new PeerIndex(files);
-        PeerSelector peerSelector = new LeastAmountOfFilesSelector(fileIndex, peerIndex);
-        PeerInfo peer = peerSelector.select();
-
-        if(peer == null) {
-            // TODO: get more peers! and select again.
-            peer = peerSelector.select();
+        Optional<PeerInfo> optionalPeer = network.givePeerForFilePut();
+        if(optionalPeer == null || !optionalPeer.isPresent()) {
+            user.sayError("No peers are available at this time");
+            // TODO: Place file info in staging area for later upload
+            return;
         }
 
+        PeerInfo peer = optionalPeer.get();
         RemoteVault vault = new RemoteVault(peer);
         vault.uploadFile(fileName, bytes);
 
+        FileSystemIndex fileIndex = new FileSystemIndex(files);
         fileIndex.add(new FileSystemEntry(fileName, size, hashString, peer.getId()));
 
         user.say("File was put on the system");

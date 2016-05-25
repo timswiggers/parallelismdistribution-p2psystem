@@ -1,17 +1,26 @@
 package peers.network;
 
 import discovery.DiscoveryClient;
+import filesystem.FileSystemIndex;
 import io.local.FileAccess;
+import peers.PeerIndex;
+import peers.PeerInfo;
+import peers.selector.LeastAmountOfFilesSelector;
+import peers.selector.PeerSelector;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Optional;
 
 public class P2PNetwork {
-    private final FileAccess fileAccess;
+    private final PeerIndex peerIndex;
+    private final PeerSelector peerSelector;
     private final DiscoveryClient discoveryClient;
 
     public P2PNetwork(FileAccess fileAccess, DiscoveryClient discoveryClient) {
-        this.fileAccess = fileAccess;
+        this.peerIndex = new PeerIndex(fileAccess);
         this.discoveryClient = discoveryClient;
+        this.peerSelector = new LeastAmountOfFilesSelector(this);
     }
 
     public void connect(){
@@ -42,7 +51,14 @@ public class P2PNetwork {
             discoveryClient.joinPeers();
         } catch (IOException e) {
             System.out.println("Could not connect to discovery service");
-            e.printStackTrace();
         }
+    }
+
+    public Optional<PeerInfo> givePeerForFilePut() {
+        return peerSelector.select();
+    }
+
+    public Collection<PeerInfo> listPeers(){
+        return peerIndex.list();
     }
 }

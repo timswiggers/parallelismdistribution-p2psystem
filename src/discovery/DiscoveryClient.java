@@ -36,12 +36,17 @@ public class DiscoveryClient {
             socket.connect(address);
 
             try (PrintWriter writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
-                 BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
                 writer.printf("%s\n", command);
                 writer.flush();
 
-                // TODO: act on result from discovery service
+                String responseString = reader.readLine();
+                DiscoveryResponseType response = DiscoveryResponseType.valueOf(responseString);
+
+                if(response != DiscoveryResponseType.Success){
+                    throw new RuntimeException("Could not join peers on the discovery service");
+                }
             }
 
         }
