@@ -84,7 +84,7 @@ public class P2PNetwork {
     }
 
     private Collection<PeerInfo> doHealthCheckOn(Collection<PeerInfo> peers) {
-
+        return peers; // TODO: only return health peers
     }
 
     private void runPeriodicHealthChecks() {
