@@ -9,21 +9,23 @@ import java.util.Date;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class SocketHandler extends Thread {
-    private final BufferedReader requestStream;
-    private final PrintWriter responseWriter;
     private final CopyOnWriteArrayList<PeerInfo> peers;
     private final Socket socket;
 
+    private BufferedReader requestStream;
+    private PrintWriter responseWriter;
+
     public SocketHandler(Socket socket, CopyOnWriteArrayList<PeerInfo> peers) throws IOException {
         this.socket = socket;
-        this.requestStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        this.responseWriter = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
         this.peers = peers;
     }
 
     @Override
     public void run() {
         try {
+            this.requestStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            this.responseWriter = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+
             handleRequest();
         } catch (IOException e) {
             e.printStackTrace();
