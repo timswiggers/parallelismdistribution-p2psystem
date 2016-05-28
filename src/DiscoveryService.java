@@ -15,6 +15,7 @@ public class DiscoveryService {
             runDiscoveryServer(port);
 
         } catch(IOException e) {
+
             e.printStackTrace();
         }
     }
