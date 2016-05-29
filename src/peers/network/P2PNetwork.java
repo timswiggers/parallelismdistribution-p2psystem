@@ -7,11 +7,9 @@ import peers.PeerInfo;
 import peers.selector.LeastAmountOfFilesSelector;
 import peers.selector.PeerSelector;
 
+import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Optional;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 public class P2PNetwork {
     private final PeerIndex peerIndex;
@@ -22,6 +20,7 @@ public class P2PNetwork {
     private Timer networkHealthCheckTimer;
 
     enum NetworkState{
+        Disconnecting,
         Disconnected,
         Connecting,
         Connected
@@ -43,7 +42,7 @@ public class P2PNetwork {
 
         try{
             connectSafe();
-            runPeriodicHealthChecks();
+            //runPeriodicHealthChecks();
             networkState = NetworkState.Connected;
         } catch(IOException e){
             e.printStackTrace();
@@ -52,13 +51,23 @@ public class P2PNetwork {
     }
 
     public void disconnect(){
-        // TODO:
-        // Close own health check socket
-        networkHealthCheckTimer.purge();
-        networkState = NetworkState.Disconnected;
+        if(networkState != NetworkState.Connected){
+            return;
+        }
+        networkState = NetworkState.Disconnecting;
+
+        try{
+            disconnectSafe();
+            networkState = NetworkState.Disconnected;
+        } catch(IOException e){
+            e.printStackTrace();
+            networkState = NetworkState.Connected;
+        }
     }
 
     private void connectSafe() throws IOException {
+
+        discoveryClient.joinPeers();
 
         boolean networkIsHealthy = doHealthCheck();
         if (!networkIsHealthy) {
@@ -73,6 +82,14 @@ public class P2PNetwork {
         // 3 Start own health check socket
     }
 
+    private void disconnectSafe() throws IOException {
+        // TODO:
+        // Close own health check socket
+        networkHealthCheckTimer.purge();
+        discoveryClient.leavePeers();
+        networkState = NetworkState.Disconnected;
+    }
+
     private boolean doHealthCheck(){
 
         Collection<PeerInfo> peers = peerIndex.list();
@@ -80,11 +97,11 @@ public class P2PNetwork {
 
         updateIndexOnHealthCheck(peers, healthyPeers);
 
-        return healthyPeers.size() > 5;
+        return healthyPeers.size() >= 3;
     }
 
     private Collection<PeerInfo> doHealthCheckOn(Collection<PeerInfo> peers) {
-        return peers; // TODO: only return health peers
+        return new ArrayList<>(); // TODO: only return health peers, for now none are healthy
     }
 
     private void runPeriodicHealthChecks() {
@@ -107,9 +124,14 @@ public class P2PNetwork {
 
     private void resupplyPeers() {
         try {
-            discoveryClient.joinPeers();
-        } catch (IOException e) {
-            System.out.println("Could not connect to discovery service");
+            PeerInfo[] newPeers = discoveryClient.requestPeers();
+
+            for(PeerInfo peer : newPeers){
+                peerIndex.add(peer);
+            }
+        } catch (JAXBException |IOException e) {
+            System.out.println("\nCould not connect to discovery server: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

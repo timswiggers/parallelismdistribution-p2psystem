@@ -47,13 +47,15 @@ public class PutCommand implements Command {
             return;
         }
 
+        user.sayPartly("Hashing the file... ");
         BytesHasher hasher = new SHA256MerkleBytesHasher(1000 * 1000, true);
         byte[] hash = hasher.hash(bytes);
 
-
         int size = bytes.length;
         String hashString = BytesAsHexPrinter.toString(hash);
+        user.say("done!");
 
+        user.sayPartly("Uploading the file... ");
         Optional<PeerInfo> optionalPeer = network.givePeerForFilePut();
         if(optionalPeer == null || !optionalPeer.isPresent()) {
             user.sayError("No peers are available at this time");
@@ -64,10 +66,11 @@ public class PutCommand implements Command {
         PeerInfo peer = optionalPeer.get();
         RemoteVault vault = new RemoteVault(peer);
         vault.uploadFile(fileName, bytes);
+        user.say("done!");
 
         FileSystemIndex fileIndex = new FileSystemIndex(files);
         fileIndex.add(new FileSystemEntry(fileName, size, hashString, peer.getId()));
 
-        user.say("File was put on the system");
+        user.say("The file was put on the system");
     }
 }

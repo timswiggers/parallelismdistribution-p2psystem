@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class XmlPeer {
     private String id;
     private String ipAddress;
-    private int port;
+    private int vaultPort;
 
     public String getId() {
         return id;
@@ -27,11 +27,11 @@ public class XmlPeer {
         this.ipAddress = ipAddress;
     }
 
-    public int getPort() {
-        return port;
+    public int getVaultPort() {
+        return vaultPort;
     }
 
-    public void setPort(int port) {
-        this.port = port;
+    public void setVaultPort(int vaultPort) {
+        this.vaultPort = vaultPort;
     }
 }

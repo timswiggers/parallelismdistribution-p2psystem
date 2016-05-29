@@ -42,7 +42,7 @@ public class PeersRepository {
     private static PeerInfo mapFromXml(XmlPeer xmlPeer) {
         String id = xmlPeer.getId();
         String ipAddress = xmlPeer.getIpAddress();
-        int port = xmlPeer.getPort();
+        int port = xmlPeer.getVaultPort();
 
         return new PeerInfo(id, ipAddress, port);
     }
@@ -52,7 +52,7 @@ public class PeersRepository {
 
         xmlPeer.setId(peer.getId());
         xmlPeer.setIpAddress(peer.getIpAddress());
-        xmlPeer.setPort(peer.getPort());
+        xmlPeer.setVaultPort(peer.getVaultPort());
 
         return xmlPeer;
     }

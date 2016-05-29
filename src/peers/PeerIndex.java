@@ -1,5 +1,8 @@
 package peers;
 
+import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
+import filesystem.FileSystemEntry;
+import filesystem.xml.FileSystemEntriesRepository;
 import io.local.FileAccess;
 import peers.xml.PeersRepository;
 
@@ -47,5 +50,22 @@ public class PeerIndex {
 
     private boolean peersFileExists(){
         return files.exists(fileName);
+    }
+
+    public void add(PeerInfo peer) throws IOException, JAXBException {
+        // TODO: What if the file already exists?
+        peers.add(peer);
+        saveChanges();
+    }
+
+    private void saveChanges() throws IOException, JAXBException {
+        ByteOutputStream xmlStream = new ByteOutputStream();
+        PeersRepository.write(peers, xmlStream);
+
+        // fix: JAXB appends null bytes at the end
+        String asString = new String(xmlStream.getBytes());
+        asString = asString.trim();
+
+        files.saveFileBytes(fileName, asString.getBytes());
     }
 }

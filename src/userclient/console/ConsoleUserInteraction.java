@@ -25,6 +25,11 @@ public class ConsoleUserInteraction implements UserInteraction {
     }
 
     @Override
+    public void sayPartly(String message) {
+        out.print(message);
+    }
+
+    @Override
     public void sayList(String... messages) {
         for(String message : messages){
             say("- " + message);
@@ -37,6 +42,12 @@ public class ConsoleUserInteraction implements UserInteraction {
     }
 
     @Override
+    public void sayError(Exception error) {
+        out.println("ERROR! - " + drillDownMessage(error));
+        if(error != null) error.printStackTrace();
+    }
+
+    @Override
     public String prompt(String prompt) {
         out.printf("%s>", prompt);
         String value = safeReadLine();
@@ -44,14 +55,8 @@ public class ConsoleUserInteraction implements UserInteraction {
     }
 
     @Override
-    public void sayError(Exception error) {
-        out.println("ERROR! - " + drillDownMessage(error));
-        if(error != null) error.printStackTrace();
-    }
-
-    @Override
-    public String askForValue(String question) {
-        out.printf("Please provide the %s:", question);
+    public String ask(String question) {
+        out.printf("%s ", question);
         return safeReadLine();
     }
 

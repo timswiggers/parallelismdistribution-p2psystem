@@ -3,6 +3,7 @@ import peers.PeerInfo;
 
 import java.io.IOException;
 import java.net.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class DiscoveryService {
@@ -22,15 +23,17 @@ public class DiscoveryService {
 
     private static void runDiscoveryServer(int port) throws IOException {
 
+        ConcurrentLinkedQueue<SocketHandler> blockedHandlersWaitingForPeers = new ConcurrentLinkedQueue<>();
         CopyOnWriteArrayList<PeerInfo> peers = new CopyOnWriteArrayList<>();
 
-        System.out.printf("Discovery server running on localhost port %d\n\n", port);
-
         try (ServerSocket server = new ServerSocket(port)) {
+
+            System.out.printf("Discovery server running on localhost port %d\n\n", port);
+
             while (true) {
                 try {
                     Socket requestSocket = server.accept();
-                    SocketHandler requestHandler = new SocketHandler(requestSocket, peers);
+                    SocketHandler requestHandler = new SocketHandler(requestSocket, peers, blockedHandlersWaitingForPeers);
 
                     // Runs the handling of the request in a new thread, allowing other requests to be handled.
                     requestHandler.start();

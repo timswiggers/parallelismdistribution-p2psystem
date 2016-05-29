@@ -28,9 +28,14 @@ public class LocalFileSystem implements FileAccess {
         File file = new File(filePath);
 
         if(!file.exists()){
+            File parent = file.getParentFile();
+            if(!parent.exists() && !parent.mkdirs()){
+                throw new IllegalStateException("Could not create directory: " + parent);
+            }
+
             boolean creationSuccess = file.createNewFile();
             if(!creationSuccess) {
-                throw new IOException("Could not create index.xml file");
+                throw new IOException("Could not create " + fileName + " file");
             }
         }
 
