@@ -1,27 +1,24 @@
 package peers;
 
 public class PeerInfo {
-    private final String id;
     private final String ipAddress;
-    private final int vaultPort; // The vault port
+    private final int port;
 
-    public PeerInfo(String id, String ipAddress, int vaultPort) {
-        this.id = id;
+    public PeerInfo(String ipAddress, int port) {
         this.ipAddress = ipAddress;
-        this.vaultPort = vaultPort;
+        this.port = port;
     }
-
-    public String getId() {
-        return id;
-    }
-
 
     public String getIpAddress() {
         return ipAddress;
     }
 
-    public int getVaultPort() {
-        return vaultPort;
+    public int getPort() {
+        return port;
+    }
+
+    public String getName() {
+        return String.format("PEER-%s-%d", ipAddress, port);
     }
 
     @Override
@@ -30,6 +27,6 @@ public class PeerInfo {
         if (obj == this) return true;
         if (!(obj instanceof PeerInfo)) return false;
         PeerInfo o = (PeerInfo) obj;
-        return o.getId().equals(this.getId());
+        return o.getIpAddress().equals(this.getIpAddress()) && o.getPort() == this.getPort();
     }
 }

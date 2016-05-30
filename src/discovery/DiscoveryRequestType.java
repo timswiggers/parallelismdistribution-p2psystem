@@ -1,6 +1,6 @@
 package discovery;
 
-public enum DiscoveryCommandType {
+public enum DiscoveryRequestType {
     Join,
     Leave,
     RequestPeers

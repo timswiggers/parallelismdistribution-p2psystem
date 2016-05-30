@@ -18,7 +18,9 @@ public class LocalFileSystem implements FileAccess {
         String filePath = resolvePath(fileName);
         File file = new File(filePath);
 
-        // TODO: Handle file not existing => return new byte[0]
+        if(!file.exists()){
+            throw new RuntimeException("The file does not exist");
+        }
 
         return readFileToByteArray(file); //  Never return null
     }
@@ -45,6 +47,12 @@ public class LocalFileSystem implements FileAccess {
     public boolean exists(String fileName) {
         String filePath = resolvePath(fileName);
         return new File(filePath).exists();
+    }
+
+    @Override
+    public String getName(String fileName) {
+        String path = getPath(fileName);
+        return new File(path).getName();
     }
 
     @Override

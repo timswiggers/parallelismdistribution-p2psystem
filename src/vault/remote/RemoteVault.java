@@ -10,14 +10,14 @@ public class RemoteVault {
     }
 
     public boolean connect() {
-        return false; // TODO: implement
+        throw new RuntimeException("NOT IMPLEMENTED YET");
     }
 
     public byte[] downloadFile(String name) {
-        return new byte[0]; // TODO: implement
+        throw new RuntimeException("NOT IMPLEMENTED YET");
     }
 
     public void uploadFile(String name, byte[] bytes) {
-        // TODO: implement
+        throw new RuntimeException("NOT IMPLEMENTED YET");
     }
 }

@@ -4,10 +4,11 @@ import discovery.DiscoveryClient;
 import io.local.FileAccess;
 import peers.PeerIndex;
 import peers.PeerInfo;
+import peers.communication.CommunicationClient;
 import peers.selector.LeastAmountOfFilesSelector;
 import peers.selector.PeerSelector;
+import vault.remote.RemoteVault;
 
-import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.*;
 
@@ -15,6 +16,7 @@ public class P2PNetwork {
     private final PeerIndex peerIndex;
     private final PeerSelector peerSelector;
     private final DiscoveryClient discoveryClient;
+    private final CommunicationClient communicationClient;
 
     private NetworkState networkState;
     private Timer networkHealthCheckTimer;
@@ -26,9 +28,10 @@ public class P2PNetwork {
         Connected
     }
 
-    public P2PNetwork(FileAccess fileAccess, DiscoveryClient discoveryClient) {
+    public P2PNetwork(FileAccess fileAccess, DiscoveryClient discoveryClient, CommunicationClient communicationClient) {
         this.peerIndex = new PeerIndex(fileAccess);
         this.discoveryClient = discoveryClient;
+        this.communicationClient = communicationClient;
         this.peerSelector = new LeastAmountOfFilesSelector(this);
         this.networkState  = NetworkState.Disconnected;
         this.networkHealthCheckTimer = new Timer();
@@ -42,7 +45,7 @@ public class P2PNetwork {
 
         try{
             connectSafe();
-            //runPeriodicHealthChecks();
+            runPeriodicHealthChecks();
             networkState = NetworkState.Connected;
         } catch(IOException e){
             e.printStackTrace();
@@ -67,35 +70,33 @@ public class P2PNetwork {
 
     private void connectSafe() throws IOException {
 
-        discoveryClient.joinPeers();
+        communicationClient.start();
+        boolean successfullyJoined = discoveryClient.joinPeers();
+        if(!successfullyJoined){
+            throw new RuntimeException("Could not connect to the discovery client");
+        }
 
         boolean networkIsHealthy = doHealthCheck();
         if (!networkIsHealthy) {
-            resupplyPeers();
+            boolean peersAvailable = discoveryClient.requestPeers();
+            // TODO: notify when Wait returned and we have to wait for peers
         }
-
-        // TODO:
-        // 1 Load in known peers
-        // 2 Determine if the network is available enough
-        // - Do a health check on known peers
-        // - If the network is not healthy enough, contact the discovery service for more peers
-        // 3 Start own health check socket
     }
 
     private void disconnectSafe() throws IOException {
-        // TODO:
-        // Close own health check socket
+        networkHealthCheckTimer.cancel();
         networkHealthCheckTimer.purge();
-        discoveryClient.leavePeers();
+        communicationClient.stop();
+        boolean successfullyLeft = discoveryClient.leavePeers();
+        if(!successfullyLeft){
+            throw new RuntimeException("Could not connect to the discovery client");
+        }
         networkState = NetworkState.Disconnected;
     }
 
     private boolean doHealthCheck(){
-
         Collection<PeerInfo> peers = peerIndex.list();
         Collection<PeerInfo> healthyPeers = doHealthCheckOn(peers);
-
-        updateIndexOnHealthCheck(peers, healthyPeers);
 
         return healthyPeers.size() >= 3;
     }
@@ -112,19 +113,17 @@ public class P2PNetwork {
             public void run() {
                 boolean networkIsHealthy = doHealthCheck();
                 if (!networkIsHealthy) {
-                    resupplyPeers();
+                    try {
+                        discoveryClient.requestPeers();
+                    } catch (IOException e) { /* swallow */ }
                 }
             }
         }, fiveMinutes, fiveMinutes);
     }
 
-    private void updateIndexOnHealthCheck(Collection<PeerInfo> originalPeers, Collection<PeerInfo> healthyPeers){
-
-    }
-
-    private void resupplyPeers() {
+    /*private void resupplyPeers() {
         try {
-            PeerInfo[] newPeers = discoveryClient.requestPeers();
+            discoveryClient.requestPeers();
 
             for(PeerInfo peer : newPeers){
                 peerIndex.add(peer);
@@ -133,7 +132,7 @@ public class P2PNetwork {
             System.out.println("\nCould not connect to discovery server: " + e.getMessage());
             e.printStackTrace();
         }
-    }
+    }*/
 
     public Optional<PeerInfo> givePeerForFilePut() {
         return peerSelector.select();
@@ -141,5 +140,9 @@ public class P2PNetwork {
 
     public Collection<PeerInfo> listPeers(){
         return peerIndex.list();
+    }
+
+    public RemoteVault getVaultForPeer(PeerInfo peer){
+        return new RemoteVault(peer);
     }
 }

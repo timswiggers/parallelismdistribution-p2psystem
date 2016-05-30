@@ -36,8 +36,17 @@ public class PutCommand implements Command {
     }
 
     private void executePut(UserInteraction user) throws IOException, JAXBException, NoSuchAlgorithmException {
-        String fileName = user.askForValue("filename", "383MB.exe");
+        FileSystemIndex fileIndex = new FileSystemIndex(files);
+
+        String fileName = user.askForValue("filename", "..\\383MB.exe");
         if(fileName == null) {
+            return;
+        }
+
+        String fileKey = files.getName(fileName);
+        if(fileIndex.contains(fileKey)) {
+            user.say("This file is already stored on the file system");
+            user.say("Check which files are stored on the system by issuing the 'list' command");
             return;
         }
 
@@ -68,8 +77,7 @@ public class PutCommand implements Command {
         vault.uploadFile(fileName, bytes);
         user.say("done!");
 
-        FileSystemIndex fileIndex = new FileSystemIndex(files);
-        fileIndex.add(new FileSystemEntry(fileName, size, hashString, peer.getId()));
+        fileIndex.add(new FileSystemEntry(fileKey, size, hashString, peer.getId()));
 
         user.say("The file was put on the system");
     }

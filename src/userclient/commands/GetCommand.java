@@ -51,7 +51,7 @@ public class GetCommand implements Command {
         PeerIndex peerIndex = new PeerIndex(files);
         PeerInfo peerInfo = peerIndex.get(fileEntry.getPeerId());
 
-        RemoteVault vault = new RemoteVault(peerInfo);
+        RemoteVault vault = network.getVaultForPeer(peerInfo);
         boolean couldConnect = vault.connect();
         if(!couldConnect){
             user.sayError("Could not connect to peer owner of the file");
@@ -66,15 +66,15 @@ public class GetCommand implements Command {
             return;
         }
 
-        BytesHasher hasher = new SHA256MerkleBytesHasher(1000 * 1000, true);
-
         user.say("Comparing hash...");
+        BytesHasher hasher = new SHA256MerkleBytesHasher(1000 * 1000, true);
         byte[] downloadedFileHash = hasher.hash(downloadedBytes);
         byte[] originalHash = fileEntry.getHash().getBytes();
 
         boolean hashOK = Arrays.equals(originalHash, downloadedFileHash);
         if(!hashOK) {
             user.sayError("The downloaded file has been tampered with!");
+            user.say("Out of security reasons, we won't download the file");
             return;
         }
 

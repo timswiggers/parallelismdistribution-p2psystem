@@ -7,17 +7,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "peer")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class XmlPeer {
-    private String id;
     private String ipAddress;
-    private int vaultPort;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
+    private int port;
 
     public String getIpAddress() {
         return ipAddress;
@@ -27,11 +18,11 @@ public class XmlPeer {
         this.ipAddress = ipAddress;
     }
 
-    public int getVaultPort() {
-        return vaultPort;
+    public int getPort() {
+        return port;
     }
 
-    public void setVaultPort(int vaultPort) {
-        this.vaultPort = vaultPort;
+    public void setPort(int port) {
+        this.port = port;
     }
 }

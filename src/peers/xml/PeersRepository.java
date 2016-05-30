@@ -40,19 +40,17 @@ public class PeersRepository {
     }
 
     private static PeerInfo mapFromXml(XmlPeer xmlPeer) {
-        String id = xmlPeer.getId();
         String ipAddress = xmlPeer.getIpAddress();
-        int port = xmlPeer.getVaultPort();
+        int port = xmlPeer.getPort();
 
-        return new PeerInfo(id, ipAddress, port);
+        return new PeerInfo(ipAddress, port);
     }
 
     private static XmlPeer mapToXml(PeerInfo peer) {
         XmlPeer xmlPeer = new XmlPeer();
 
-        xmlPeer.setId(peer.getId());
         xmlPeer.setIpAddress(peer.getIpAddress());
-        xmlPeer.setVaultPort(peer.getVaultPort());
+        xmlPeer.setPort(peer.getPort());
 
         return xmlPeer;
     }

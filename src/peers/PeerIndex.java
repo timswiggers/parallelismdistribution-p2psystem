@@ -31,11 +31,11 @@ public class PeerIndex {
         return peers;
     }
 
-    public PeerInfo get(String peerId) {
-        Optional<PeerInfo> possibleEntry = peers.stream().filter(e -> e.getId().equals(peerId)).findFirst();
+    public PeerInfo get(String peerName) {
+        Optional<PeerInfo> possibleEntry = peers.stream().filter(e -> e.getName().equals(peerName)).findFirst();
 
         if(!possibleEntry.isPresent()) {
-            throw new RuntimeException("Unknown peer '" + peerId + "'");
+            throw new RuntimeException("Unknown peer '" + peerName + "'");
         }
 
         return possibleEntry.get();
