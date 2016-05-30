@@ -19,31 +19,22 @@ public class DiscoveryClient {
     }
 
     public boolean joinPeers() throws IOException {
-        return send(DiscoveryCommandType.Join) == DiscoveryResponseType.Success;
+        return send(DiscoveryRequestType.Join) == DiscoveryResponseType.Success;
     }
 
     public boolean leavePeers() throws IOException {
-        return send(DiscoveryCommandType.Leave) == DiscoveryResponseType.Success;
+        return send(DiscoveryRequestType.Leave) == DiscoveryResponseType.Success;
     }
 
     public boolean requestPeers() throws IOException {
-        return send(DiscoveryCommandType.RequestPeers) == DiscoveryResponseType.Success;
+        return send(DiscoveryRequestType.RequestPeers) == DiscoveryResponseType.Success;
     }
 
-    /*private static PeerInfo deserializePeer(String peerString) {
-        String[] parts = peerString.split("\\|");
-        String id = parts[0];
-        String ipAddress = parts[1];
-        int vaultPort = Integer.parseInt(parts[2]);
-
-        return new PeerInfo(id, ipAddress, vaultPort);
-    }*/
-
-    private DiscoveryResponseType send(DiscoveryCommandType command) throws IOException {
+    private DiscoveryResponseType send(DiscoveryRequestType command) throws IOException {
         return send(command, new ArrayList<>());
     }
 
-    private DiscoveryResponseType send(DiscoveryCommandType command, Collection<String> requestData) throws IOException {
+    private DiscoveryResponseType send(DiscoveryRequestType command, Collection<String> requestData) throws IOException {
         InetSocketAddress address = new InetSocketAddress(serverAddress, serverPort);
 
         try (Socket socket = new Socket()) {
@@ -66,7 +57,7 @@ public class DiscoveryClient {
                 String responseString = reader.readLine();
                 DiscoveryResponseType response = DiscoveryResponseType.valueOf(responseString);
 
-                if(response != DiscoveryResponseType.Success){
+                if(response == DiscoveryResponseType.Error){
                     String errorMessage = reader.readLine();
                     throw new RuntimeException(errorMessage);
                 }

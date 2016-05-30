@@ -4,39 +4,30 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class CommunicationClient {
+public class CommunicationClient extends Thread {
 
-    private CommunicationClientState state;
-    private final int port;
-
-    enum CommunicationClientState {
-        Stopped,
-        Started
-    }
+    private int port;
 
     public CommunicationClient(int port) {
         this.port = port;
-        this.state = CommunicationClientState.Stopped;
     }
 
-    public void start(){
-        state = CommunicationClientState.Started;
+    public int getPort() { return port; }
+
+    @Override
+    public void run() {
         acceptRequests();
-    }
-
-    public void stop(){
-        state = CommunicationClientState.Stopped;
     }
 
     private void acceptRequests(){
         try (ServerSocket server = new ServerSocket(port)) {
 
-            System.out.printf("Discovery server running on localhost port %d\n\n", port);
+            port = server.getLocalPort();
 
-            while (state == CommunicationClientState.Started) {
+            while (true) {
                 try {
                     Socket requestSocket = server.accept();
-                    SocketHandler requestHandler = new SocketHandler(requestSocket);
+                    RequestHandler requestHandler = new RequestHandler(requestSocket);
 
                     // Runs the handling of the request in a new thread, allowing other requests to be handled.
                     requestHandler.start();

@@ -77,7 +77,7 @@ public class PutCommand implements Command {
         vault.uploadFile(fileName, bytes);
         user.say("done!");
 
-        fileIndex.add(new FileSystemEntry(fileKey, size, hashString, peer.getId()));
+        fileIndex.add(new FileSystemEntry(fileKey, size, hashString, peer.getName()));
 
         user.say("The file was put on the system");
     }

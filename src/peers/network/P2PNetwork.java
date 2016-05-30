@@ -86,7 +86,7 @@ public class P2PNetwork {
     private void disconnectSafe() throws IOException {
         networkHealthCheckTimer.cancel();
         networkHealthCheckTimer.purge();
-        communicationClient.stop();
+        communicationClient.interrupt();
         boolean successfullyLeft = discoveryClient.leavePeers();
         if(!successfullyLeft){
             throw new RuntimeException("Could not connect to the discovery client");

@@ -5,13 +5,13 @@ public class FileSystemEntry {
     private final String name;
     private final int size;
     private final String hash;
-    private final String peerId;
+    private final String peerName;
 
-    public FileSystemEntry(String name, int size, String hash, String peerId) {
+    public FileSystemEntry(String name, int size, String hash, String peerName) {
         this.name = name;
         this.size = size;
         this.hash = hash;
-        this.peerId = peerId;
+        this.peerName = peerName;
     }
 
     public String getName() {
@@ -26,5 +26,5 @@ public class FileSystemEntry {
         return hash;
     }
 
-    public String getPeerId() { return peerId; }
+    public String getPeerName() { return peerName; }
 }

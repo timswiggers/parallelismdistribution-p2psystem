@@ -1,6 +1,7 @@
 import discovery.DiscoveryClient;
 import peers.communication.CommunicationClient;
 import peers.network.P2PNetwork;
+import userclient.UserInteraction;
 import userclient.console.CommandExecutor;
 import userclient.console.ConsoleUserInteraction;
 import io.local.FileAccess;
@@ -8,6 +9,7 @@ import io.local.LocalFileSystem;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -18,22 +20,22 @@ public class ConsoleClient {
             // We use this interface to interact with the user through the console
             ConsoleUserInteraction user = new ConsoleUserInteraction(System.in, System.out);
 
-            // We ask the user for the port the client should listen on, so we can identify the P2P client to use.
             // It's possible to use multiple clients on the same system. We cannot identify clients by their
             // IP address alone because multiple clients could use the same one.
-            int clientPort = Integer.parseInt(user.ask("What port do you want to run on?"));
+            int clientPort = determineClientPort(args, user);
+
             user.say("Starting P2P Console Client");
+
+            // We use the DiscoveryClient to send requests to the discovery server
+            // We use the CommunicationClient to receive responses from the network (peers & discovery server)
+            DiscoveryClient discoveryClient = new DiscoveryClient(clientPort, InetAddress.getLocalHost(), DiscoveryService.port);
+            CommunicationClient communicationClient = new CommunicationClient(clientPort);
 
             // Each client will work from his/her own work space within the 'p2p' workspace.
             Path appRoot = Paths.get(System.getProperty("user.home"), "p2p", "client" + clientPort);
             FileAccess localFiles = new LocalFileSystem(appRoot);
 
             // TODO: Spin up vault
-
-            // We use the DiscoveryClient to send requests to the discovery server
-            // We use the CommunicationClient to receive responses from the network (peers & discovery server)
-            DiscoveryClient discoveryClient = new DiscoveryClient(clientPort, InetAddress.getLocalHost(), DiscoveryService.port);
-            CommunicationClient communicationClient = new CommunicationClient(clientPort);
 
             // We connect to the P2P network by registering this client with the discovery server.
             P2PNetwork network = new P2PNetwork(localFiles, discoveryClient, communicationClient);
@@ -54,6 +56,25 @@ public class ConsoleClient {
 
         } catch(Exception e){
             e.printStackTrace();
+        }
+    }
+
+    private static int determineClientPort(String[] args, UserInteraction user) throws IOException {
+        if(args.length > 1) {
+            return Integer.parseInt(args[1]);
+        }
+
+        // We ask the user for the port the client should listen on, so we can identify the P2P client to use.
+        String portString = user.ask("What port do you want to run on (random)?");
+        if(portString != null && !portString.isEmpty()){
+            user.newLine();
+            return Integer.parseInt(portString);
+        }
+
+        // If the user did not supply a port, we select one randomly
+        // Chances are this clashes with an existing client, but for demo purposes, we take that chance
+        try(ServerSocket s = new ServerSocket(0)){
+            return s.getLocalPort();
         }
     }
 }

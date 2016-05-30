@@ -1,5 +1,7 @@
 package discovery;
 
+import discovery.responses.PeersAvailableResponseHandler;
+import discovery.responses.ResponseHandler;
 import peers.PeerInfo;
 
 import java.io.*;
@@ -13,17 +15,17 @@ import java.util.stream.Collectors;
 
 class RequestHandler extends Thread {
     private final CopyOnWriteArrayList<PeerInfo> peers;
-    private final ConcurrentLinkedQueue<RequestHandler> peersRequestsQueue;
+    private final ConcurrentLinkedQueue<PeerInfo> peersWaitingForPeersQueue;
     private final Socket socket;
 
     private PeerInfo requester;
     private BufferedReader requestStream;
     private PrintWriter responseWriter;
 
-    public RequestHandler(Socket socket, CopyOnWriteArrayList<PeerInfo> peers, ConcurrentLinkedQueue<RequestHandler> peersRequestsQueue) throws IOException {
+    public RequestHandler(Socket socket, CopyOnWriteArrayList<PeerInfo> peers, ConcurrentLinkedQueue<PeerInfo> peersWaitingForPeersQueue) throws IOException {
         this.socket = socket;
         this.peers = peers;
-        this.peersRequestsQueue = peersRequestsQueue;
+        this.peersWaitingForPeersQueue = peersWaitingForPeersQueue;
     }
 
     @Override
@@ -47,7 +49,7 @@ class RequestHandler extends Thread {
         int peerPort = Integer.parseInt(requestStream.readLine());
 
         requester = getOrCreateRequesterPeer(peerAddress, peerPort);
-        DiscoveryCommandType commandType = DiscoveryCommandType.valueOf(requestStream.readLine());
+        DiscoveryRequestType commandType = DiscoveryRequestType.valueOf(requestStream.readLine());
 
         switch(commandType) {
             case Join: { handleJoin(); break; }
@@ -71,10 +73,13 @@ class RequestHandler extends Thread {
         }
 
         peers.add(requester);
+        responseSuccess();
+
+        if(!peersWaitingForPeersQueue.isEmpty() && peers.size() > 3){
+            respondWaitingPeers();
+        }
 
         System.out.printf("%s | Peer joined the network: %s\n", new Date(), requester.getName());
-
-        responseSuccess();
     }
 
     /*
@@ -91,9 +96,9 @@ class RequestHandler extends Thread {
             peers.remove(requester);
         }
 
-        System.out.printf("%s | Peer left the network: %s\n", new Date(), requester.getName());
-
         responseSuccess();
+
+        System.out.printf("%s | Peer left the network: %s\n", new Date(), requester.getName());
     }
 
     /*
@@ -106,52 +111,34 @@ class RequestHandler extends Thread {
             return;
         }
 
-        Collection<PeerInfo> responsePeers = peersWithout(requester);
+        Collection<PeerInfo> availablePeers = peersWithout(requester);
+        if(availablePeers.size() >= 3){
+            ResponseHandler responseHandler = new PeersAvailableResponseHandler(requester, availablePeers);
+            responseHandler.start();
+            responseSuccess();
 
-        if(responsePeers.size() >= 3) {
-            responseWithPeers(responsePeers);
-            System.out.printf("%s | Peers requested: by %s, returned %d peers.\n", new Date(), requester.getName(), responsePeers.size());
+            System.out.printf("%s | Peers requested: by %s, returned %d peers.\n", new Date(), requester.getName(), availablePeers.size());
 
-            if(!peersRequestsQueue.isEmpty()){
-                RequestHandler handlerFromQueue;
-                while((handlerFromQueue = peersRequestsQueue.poll()) != null){
-                    handlerFromQueue.resumeRequestPeers();
-                }
-            }
-        } else {
-            peersRequestsQueue.add(this);
-            System.out.printf("%s | Peers requested: by %s but only %d available, waiting for more.\n", new Date(), requester.getName(), responsePeers.size());
+            return;
         }
+
+        peersWaitingForPeersQueue.add(requester);
+        responseWait();
+
+        System.out.printf("%s | Peers requested: by %s but only %d available, waiting for more.\n", new Date(), requester.getName(), availablePeers.size());
     }
 
-    private void resumeRequestPeers(){
-        Collection<PeerInfo> responsePeers = peersWithout(requester);
-        responseWithPeers(responsePeers);
-        System.out.printf("%s | Peers available: for %s, returned %d peers\n", new Date(), requester.getName(), responsePeers.size());
+    private void respondWaitingPeers(){
+        PeerInfo waitingPeer;
+        while((waitingPeer = peersWaitingForPeersQueue.poll()) != null){
+            Collection<PeerInfo> peersWithoutThisOne = peersWithout(waitingPeer);
+            ResponseHandler responseHandler = new PeersAvailableResponseHandler(waitingPeer, peersWithoutThisOne);
+            responseHandler.start();
+        }
     }
 
     private Collection<PeerInfo> peersWithout(PeerInfo self){
         return peers.stream().filter(p -> !p.equals(self)).collect(Collectors.toList());
-    }
-
-    /*
-    * Responses
-    * */
-
-    private void responseWithPeers(Collection<PeerInfo> peers){
-        responseWriter.printf("%s\n", DiscoveryResponseType.Success);
-        peers.stream().map(RequestHandler::serializePeer).forEach(peerString -> {
-            responseWriter.printf("%s\n", peerString);
-        });
-        responseWriter.printf("RESPONSE_END\n");
-        responseWriter.flush();
-    }
-
-    private static String serializePeer(PeerInfo peer){
-        String ipAddress = peer.getIpAddress();
-        int port = peer.getPort();
-
-        return String.format("%s|%d", ipAddress, port);
     }
 
     private void responseSuccess(){
@@ -160,8 +147,14 @@ class RequestHandler extends Thread {
         responseWriter.flush();
     }
 
+    private void responseWait(){
+        responseWriter.printf("%s\n", DiscoveryResponseType.Wait);
+        responseWriter.printf("RESPONSE_END\n");
+        responseWriter.flush();
+    }
+
     private void responseError(String message){
-        responseWriter.printf("%s\n", DiscoveryResponseType.Success);
+        responseWriter.printf("%s\n", DiscoveryResponseType.Error);
         responseWriter.printf("%s\n", message);
         responseWriter.printf("RESPONSE_END\n");
         responseWriter.flush();

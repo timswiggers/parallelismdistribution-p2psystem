@@ -30,7 +30,7 @@ public class LeastAmountOfFilesSelector implements PeerSelector {
         //   return peers.stream().findFirst().get();
         //}
 
-        //Map<String, List<FileSystemEntry>> filesByPeerId = storedFiles.stream().collect(Collectors.groupingBy(FileSystemEntry::getPeerId));
+        //Map<String, List<FileSystemEntry>> filesByPeerId = storedFiles.stream().collect(Collectors.groupingBy(FileSystemEntry::getPeerName));
         //Map<String, Integer> fileCountByPeerId = filesByPeerId.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> ((List)e.getValue()).size()));
 
         //String peerIdWithLeastFiles = fileCountByPeerId.entrySet().stream().min((o1, o2) -> o1.getValue() - o2.getValue()).get().getKey();

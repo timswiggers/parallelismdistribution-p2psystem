@@ -37,5 +37,5 @@ public class XmlFileSystemEntry {
 
     public String getPeerId() { return peerId; }
 
-    public void setPeerId(String peerId) { this.peerId = peerId; }
+    public void setPeerName(String peerName) { this.peerId = peerName; }
 }

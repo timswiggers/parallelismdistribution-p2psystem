@@ -46,7 +46,8 @@ public class CommandExecutor {
             }
         }
 
-        user.say("\nExiting userclient.");
+        user.newLine();
+        user.say("Exiting userclient...");
     }
 
     private boolean isKnownCommand(String command) {

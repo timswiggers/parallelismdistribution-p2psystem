@@ -2,9 +2,6 @@ package peers.communication;
 
 import java.net.Socket;
 
-/**
- * Created by timsw on 30/05/2016.
- */
 class RequestHandler extends Thread {
     private final Socket requestSocket;
 
@@ -14,7 +11,7 @@ class RequestHandler extends Thread {
 
     @Override
     public void run() {
-
+        System.out.println("GOT REQUEST");
     }
 
 
