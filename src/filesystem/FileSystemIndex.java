@@ -18,7 +18,7 @@ public class FileSystemIndex {
         this.entries = new HashSet<>(getEntries());
     }
 
-    public void add(FileSystemEntry entry) throws IOException, JAXBException {
+    public synchronized void add(FileSystemEntry entry) throws IOException, JAXBException {
         // TODO: What if the file already exists?
         entries.add(entry);
         saveChanges();

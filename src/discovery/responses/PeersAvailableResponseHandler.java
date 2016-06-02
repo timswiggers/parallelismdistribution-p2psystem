@@ -16,7 +16,7 @@ public class PeersAvailableResponseHandler extends ResponseHandler {
 
     @Override
     protected void writeResponse(PrintWriter response) {
-        response.println(PeerRequestType.PeersAvailable.toString());
+        response.println(PeerRequestType.AcceptPeers.toString());
         availablePeers.stream().map(PeersAvailableResponseHandler::serializePeer).forEach(response::println);
     }
 

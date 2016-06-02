@@ -52,8 +52,8 @@ public class PeerIndex {
         return files.exists(fileName);
     }
 
-    public void add(PeerInfo peer) throws IOException, JAXBException {
-        // TODO: What if the file already exists?
+    public synchronized void add(PeerInfo peer) throws IOException, JAXBException {
+        // TODO: What if the peer already exists?
         peers.add(peer);
         saveChanges();
     }

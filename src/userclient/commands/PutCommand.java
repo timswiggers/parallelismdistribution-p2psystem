@@ -19,10 +19,12 @@ import java.util.Optional;
 public class PutCommand implements Command {
 
     private final FileAccess files;
+    private final FileSystemIndex fileIndex;
     private final P2PNetwork network;
 
-    public PutCommand(FileAccess files, P2PNetwork network) {
+    public PutCommand(FileAccess files, FileSystemIndex fileIndex, P2PNetwork network) {
         this.files = files;
+        this.fileIndex = fileIndex;
         this.network = network;
     }
 
@@ -36,8 +38,6 @@ public class PutCommand implements Command {
     }
 
     private void executePut(UserInteraction user) throws IOException, JAXBException, NoSuchAlgorithmException {
-        FileSystemIndex fileIndex = new FileSystemIndex(files);
-
         String fileName = user.askForValue("filename", "..\\383MB.exe");
         if(fileName == null) {
             return;
@@ -73,7 +73,7 @@ public class PutCommand implements Command {
         }
 
         PeerInfo peer = optionalPeer.get();
-        RemoteVault vault = new RemoteVault(peer);
+        RemoteVault vault = network.getVaultForPeer(peer);
         vault.uploadFile(fileName, bytes);
         user.say("done!");
 

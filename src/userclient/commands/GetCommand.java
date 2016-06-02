@@ -19,10 +19,12 @@ import java.util.Arrays;
 public class GetCommand implements Command {
 
     private final FileAccess files;
+    private final FileSystemIndex fileIndex;
     private final P2PNetwork network;
 
-    public GetCommand(FileAccess files, P2PNetwork network) {
+    public GetCommand(FileAccess files, FileSystemIndex fileIndex, P2PNetwork network) {
         this.files = files;
+        this.fileIndex = fileIndex;
         this.network = network;
     }
 
@@ -41,7 +43,6 @@ public class GetCommand implements Command {
             return;
         }
 
-        FileSystemIndex fileIndex = new FileSystemIndex(files);
         if(!fileIndex.contains(fileName)) {
             user.sayError("The file system does not contain a file named '" + fileName + "'");
             return;
@@ -52,7 +53,7 @@ public class GetCommand implements Command {
         PeerInfo peerInfo = peerIndex.get(fileEntry.getPeerName());
 
         RemoteVault vault = network.getVaultForPeer(peerInfo);
-        boolean couldConnect = vault.connect();
+        boolean couldConnect = vault.ping();
         if(!couldConnect){
             user.sayError("Could not connect to peer owner of the file");
             user.say("Please try again later");

@@ -22,15 +22,13 @@ public class HashCommand implements Command {
     public void execute(UserInteraction user) {
         try {
             executeHash(user);
-        } catch (IOException e) {
-            user.sayError(e);
-        } catch (NoSuchAlgorithmException e) {
+        } catch (IOException | NoSuchAlgorithmException e) {
             user.sayError(e);
         }
     }
 
     private void executeHash(UserInteraction user) throws IOException, NoSuchAlgorithmException {
-        String fileName = user.askForValue("filename", "383MB.exe");
+        String fileName = user.askForValue("filename", "..\\383MB.exe");
         if(fileName == null) {
             return;
         }
@@ -42,7 +40,7 @@ public class HashCommand implements Command {
         }
 
         int granularity = Integer.parseInt(user.askForValue("granularity", "100"));
-        boolean parallelize = user.askYesNoQuestion("parallelize the algorithm");
+        boolean parallelize = user.askYesNoQuestion("Parallelize the algorithm");
 
         BytesHasher hasher = new SHA256MerkleBytesHasher(granularity, parallelize);
 

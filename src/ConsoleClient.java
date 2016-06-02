@@ -1,4 +1,6 @@
 import discovery.DiscoveryClient;
+import filesystem.FileSystemIndex;
+import peers.PeerIndex;
 import peers.communication.CommunicationClient;
 import peers.network.P2PNetwork;
 import userclient.UserInteraction;
@@ -24,27 +26,29 @@ public class ConsoleClient {
             // IP address alone because multiple clients could use the same one.
             int clientPort = determineClientPort(args, user);
 
+            // Each client will work from his/her own work space within the 'p2p' workspace.
+            Path appRoot = Paths.get(System.getProperty("user.home"), "p2p", "client" + clientPort);
+            FileAccess localFiles = new LocalFileSystem(appRoot);
+            FileSystemIndex fileIndex = new FileSystemIndex(localFiles);
+            PeerIndex peers = new PeerIndex(localFiles);
+
             user.say("Starting P2P Console Client");
 
             // We use the DiscoveryClient to send requests to the discovery server
             // We use the CommunicationClient to receive responses from the network (peers & discovery server)
             DiscoveryClient discoveryClient = new DiscoveryClient(clientPort, InetAddress.getLocalHost(), DiscoveryService.port);
-            CommunicationClient communicationClient = new CommunicationClient(clientPort);
-
-            // Each client will work from his/her own work space within the 'p2p' workspace.
-            Path appRoot = Paths.get(System.getProperty("user.home"), "p2p", "client" + clientPort);
-            FileAccess localFiles = new LocalFileSystem(appRoot);
+            CommunicationClient communicationClient = new CommunicationClient(clientPort, peers);
 
             // TODO: Spin up vault
 
             // We connect to the P2P network by registering this client with the discovery server.
-            P2PNetwork network = new P2PNetwork(localFiles, discoveryClient, communicationClient);
+            P2PNetwork network = new P2PNetwork(user, peers, discoveryClient, communicationClient);
             user.sayPartly("Connecting to the network... ");
             network.connect();
             user.say("connected!\n");
 
             // The command executor accepts command from the console and then executes them
-            CommandExecutor commandExecutor = new CommandExecutor(user, localFiles, network);
+            CommandExecutor commandExecutor = new CommandExecutor(user, localFiles, fileIndex, network);
 
             user.say(
                     "Parallelism and Distributed Systems - Project 2016 - P2P File System\n" +

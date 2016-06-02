@@ -1,5 +1,7 @@
 package peers.communication;
 
 public enum PeerRequestType {
-    PeersAvailable
+    AcceptPeers,
+    UploadFile,
+    Ping
 }

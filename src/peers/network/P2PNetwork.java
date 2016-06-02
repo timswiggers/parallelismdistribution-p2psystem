@@ -1,12 +1,14 @@
 package peers.network;
 
 import discovery.DiscoveryClient;
+import filesystem.FileSystemIndex;
 import io.local.FileAccess;
 import peers.PeerIndex;
 import peers.PeerInfo;
 import peers.communication.CommunicationClient;
 import peers.selector.LeastAmountOfFilesSelector;
 import peers.selector.PeerSelector;
+import userclient.UserInteraction;
 import vault.remote.RemoteVault;
 
 import java.io.IOException;
@@ -17,6 +19,7 @@ public class P2PNetwork {
     private final PeerSelector peerSelector;
     private final DiscoveryClient discoveryClient;
     private final CommunicationClient communicationClient;
+    private final UserInteraction user;
 
     private NetworkState networkState;
     private Timer networkHealthCheckTimer;
@@ -28,8 +31,9 @@ public class P2PNetwork {
         Connected
     }
 
-    public P2PNetwork(FileAccess fileAccess, DiscoveryClient discoveryClient, CommunicationClient communicationClient) {
-        this.peerIndex = new PeerIndex(fileAccess);
+    public P2PNetwork(UserInteraction user, PeerIndex peers, DiscoveryClient discoveryClient, CommunicationClient communicationClient) {
+        this.user = user;
+        this.peerIndex = peers;
         this.discoveryClient = discoveryClient;
         this.communicationClient = communicationClient;
         this.peerSelector = new LeastAmountOfFilesSelector(this);
@@ -86,6 +90,7 @@ public class P2PNetwork {
     private void disconnectSafe() throws IOException {
         networkHealthCheckTimer.cancel();
         networkHealthCheckTimer.purge();
+        communicationClient.stopRunning();
         communicationClient.interrupt();
         boolean successfullyLeft = discoveryClient.leavePeers();
         if(!successfullyLeft){
@@ -143,6 +148,13 @@ public class P2PNetwork {
     }
 
     public RemoteVault getVaultForPeer(PeerInfo peer){
-        return new RemoteVault(peer);
+        RemoteVault vault = new RemoteVault(peer);
+
+        boolean pingSuccess = vault.ping();
+        if(!pingSuccess){
+            return null; // TODO: Mark peer as unhealthy
+        }
+
+        return vault;
     }
 }

@@ -3,22 +3,19 @@ package userclient.commands;
 import userclient.UserInteraction;
 import filesystem.FileSystemEntry;
 import filesystem.FileSystemIndex;
-import io.local.FileAccess;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-/**
- * Created by timsw on 21/05/2016.
- */
+
 public class ListCommand implements Command {
 
-    private final FileAccess files;
+    private final FileSystemIndex fileIndex;
 
-    public ListCommand(FileAccess files)  {
-        this.files = files;
+    public ListCommand(FileSystemIndex fileIndex)  {
+        this.fileIndex = fileIndex;
     }
 
     @Override
@@ -31,9 +28,7 @@ public class ListCommand implements Command {
     }
 
     public void executeList(UserInteraction user) throws IOException, JAXBException {
-        FileSystemIndex index = new FileSystemIndex(files);
-
-        Collection<FileSystemEntry> entries = index.list();
+        Collection<FileSystemEntry> entries = fileIndex.list();
         List<String> entriesAsStrings = entries.stream().map(ListCommand::toPrettyString).collect(Collectors.toList());
 
         if(entriesAsStrings.isEmpty()){
