@@ -1,17 +1,19 @@
 package filesystem;
 
+import peers.PeerInfo;
+
 public class FileSystemEntry {
 
     private final String name;
     private final int size;
     private final String hash;
-    private final String peerName;
+    private final PeerInfo peer;
 
-    public FileSystemEntry(String name, int size, String hash, String peerName) {
+    public FileSystemEntry(String name, int size, String hash, PeerInfo peer) {
         this.name = name;
         this.size = size;
         this.hash = hash;
-        this.peerName = peerName;
+        this.peer = peer;
     }
 
     public String getName() {
@@ -26,5 +28,5 @@ public class FileSystemEntry {
         return hash;
     }
 
-    public String getPeerName() { return peerName; }
+    public PeerInfo getPeer() { return peer; }
 }

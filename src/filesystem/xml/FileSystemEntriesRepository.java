@@ -1,6 +1,8 @@
 package filesystem.xml;
 
 import filesystem.FileSystemEntry;
+import peers.PeerInfo;
+import peers.PeerMapper;
 
 import javax.xml.bind.*;
 import java.io.*;
@@ -39,9 +41,9 @@ public final class FileSystemEntriesRepository {
         String name = xmlEntry.getName();
         int size = xmlEntry.getSize();
         String hash = xmlEntry.getHash();
-        String peerId = xmlEntry.getPeerId();
+        PeerInfo peer = PeerMapper.fromString(xmlEntry.getPeer());
 
-        return new FileSystemEntry(name, size, hash, peerId);
+        return new FileSystemEntry(name, size, hash, peer);
     }
 
     private static XmlFileSystemEntry mapToXml(FileSystemEntry entry) {
@@ -50,7 +52,7 @@ public final class FileSystemEntriesRepository {
         xmlEntry.setName(entry.getName());
         xmlEntry.setSize(entry.getSize());
         xmlEntry.setHash(entry.getHash());
-        xmlEntry.setPeerName(entry.getPeerName());
+        xmlEntry.setPeer(entry.getPeer().getName());
 
         return xmlEntry;
     }

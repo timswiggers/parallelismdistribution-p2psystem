@@ -9,7 +9,7 @@ public class XmlFileSystemEntry {
     private String name;
     private int size;
     private String hash;
-    private String peerId;
+    private String peer;
 
     public String getName() {
         return name;
@@ -35,7 +35,7 @@ public class XmlFileSystemEntry {
         this.hash = hash;
     }
 
-    public String getPeerId() { return peerId; }
+    public String getPeer() { return peer; }
 
-    public void setPeerName(String peerName) { this.peerId = peerName; }
+    public void setPeer(String peer) { this.peer = peer; }
 }

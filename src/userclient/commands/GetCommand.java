@@ -49,8 +49,7 @@ public class GetCommand implements Command {
         }
 
         FileSystemEntry fileEntry = fileIndex.get(fileName);
-        PeerIndex peerIndex = new PeerIndex(files);
-        PeerInfo peerInfo = peerIndex.get(fileEntry.getPeerName());
+        PeerInfo peerInfo = fileEntry.getPeer();
 
         RemoteVault vault = new RemoteVault(peerInfo);
         boolean couldConnect = vault.ping();

@@ -14,9 +14,6 @@ class RequestHandler extends Thread {
     private final PeerIndex peers;
     private final LocalVault localVault;
 
-    private DataInputStream inputStream;
-    private DataOutputStream outputStream;
-
     public RequestHandler(Socket requestSocket, PeerIndex peers, LocalVault localVault) {
         super("Peer.Communication.RequestHandler");
         this.requestSocket = requestSocket;
@@ -26,78 +23,76 @@ class RequestHandler extends Thread {
 
     @Override
     public void run() {
-        try {
-            this.inputStream = new DataInputStream (requestSocket.getInputStream());
-            this.outputStream = new DataOutputStream(requestSocket.getOutputStream());
+        try(DataInputStream in = new DataInputStream (requestSocket.getInputStream());
+            DataOutputStream out = new DataOutputStream(requestSocket.getOutputStream())){
 
-            handleRequest();
+            handleRequest(in, out);
+
         } catch (IOException | JAXBException e) {
             e.printStackTrace();
         }
     }
 
-    private void handleRequest() throws IOException, JAXBException {
+    private void handleRequest(DataInputStream in, DataOutputStream out) throws IOException, JAXBException {
         // Parameter: Command
-        PeerRequestType commandType = PeerRequestType.values()[inputStream.readInt()];
+        PeerRequestType commandType = PeerRequestType.values()[in.readInt()];
 
         switch(commandType) {
-            case AcceptPeers: { handleAcceptPeers(); break; }
-            case Ping: { handlePing(); break; }
-            case UploadFile: { handleUploadFile(); break; }
+            case AcceptPeers: { handleAcceptPeers(in); break; }
+            case Ping: { handlePing(out); break; }
+            case UploadFile: { handleUploadFile(in, out); break; }
             default: {
-                responseError("Cannot handle command: " + commandType.toString());
+                responseError(out, "Cannot handle command: " + commandType.toString());
                 break;
             }
         }
     }
 
-    private void handleAcceptPeers() throws IOException, JAXBException {
-        int nrOfPeers = inputStream.readInt();
+    private void handleAcceptPeers(DataInputStream in) throws IOException, JAXBException {
+        int nrOfPeers = in.readInt();
 
         for(int i = 0; i < nrOfPeers; i++){
-            byte[] peerBytes = new byte[inputStream.readInt()];
-            inputStream.readFully(peerBytes);
+            byte[] peerBytes = new byte[in.readInt()];
+            in.readFully(peerBytes);
             peers.add(PeerMapper.fromBytes(peerBytes));
         }
-
-        responseSuccess();
     }
 
-    private void handlePing() throws IOException {
-        responseSuccess();
+    private void handlePing(DataOutputStream out) throws IOException {
+        responseSuccess(out);
     }
 
-    private void handleUploadFile() throws IOException {
+    private void handleUploadFile(DataInputStream in, DataOutputStream out) throws IOException {
 
         // Parameter: Peer
-        byte[] peerBytes = new byte[inputStream.readInt()];
-        inputStream.readFully(peerBytes);
+        byte[] peerBytes = new byte[in.readInt()];
+        in.readFully(peerBytes);
         PeerInfo peer = PeerMapper.fromBytes(peerBytes);
         String peerName = peer.getName();
 
         // Parameter: File Name
-        byte[] fileNameBytes = new byte[inputStream.readInt()];
-        inputStream.readFully(fileNameBytes);
+        byte[] fileNameBytes = new byte[in.readInt()];
+        in.readFully(fileNameBytes);
         String fileName = new String(fileNameBytes);
 
         // Parameter: File Bytes
-        byte[] bytes = new byte[inputStream.readInt()];
-        inputStream.readFully(bytes);
+        byte[] bytes = new byte[in.readInt()];
+        in.readFully(bytes);
 
         localVault.store(peerName, fileName, bytes);
 
-        responseSuccess();
+        responseSuccess(out);
     }
 
-    private void responseSuccess() throws IOException {
-        outputStream.writeInt(PeerResponseType.Success.ordinal());
-        outputStream.flush();
+    private void responseSuccess(DataOutputStream out) throws IOException {
+        out.writeInt(PeerResponseType.Success.ordinal());
+        out.flush();
     }
 
-    private void responseError(String message) throws IOException {
-        outputStream.writeInt(PeerResponseType.Error.ordinal());
-        outputStream.writeInt(message.length());
-        outputStream.writeBytes(message);
-        outputStream.flush();
+    private void responseError(DataOutputStream out, String message) throws IOException {
+        out.writeInt(PeerResponseType.Error.ordinal());
+        out.writeInt(message.length());
+        out.writeBytes(message);
+        out.flush();
     }
 }
