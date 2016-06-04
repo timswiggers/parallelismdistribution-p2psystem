@@ -38,9 +38,10 @@ class RequestHandler extends Thread {
         PeerRequestType commandType = PeerRequestType.values()[in.readInt()];
 
         switch(commandType) {
-            case AcceptPeers: { handleAcceptPeers(in); break; }
             case Ping: { handlePing(out); break; }
+            case AcceptPeers: { handleAcceptPeers(in); break; }
             case UploadFile: { handleUploadFile(in, out); break; }
+            case DownloadFile: { handleDownloadFile(in, out); break; }
             default: {
                 responseError(out, "Cannot handle command: " + commandType.toString());
                 break;
@@ -63,7 +64,6 @@ class RequestHandler extends Thread {
     }
 
     private void handleUploadFile(DataInputStream in, DataOutputStream out) throws IOException {
-
         // Parameter: Peer
         byte[] peerBytes = new byte[in.readInt()];
         in.readFully(peerBytes);
@@ -84,8 +84,32 @@ class RequestHandler extends Thread {
         responseSuccess(out);
     }
 
+    private void handleDownloadFile(DataInputStream in, DataOutputStream out) throws IOException {
+        // Parameter: Peer
+        byte[] peerBytes = new byte[in.readInt()];
+        in.readFully(peerBytes);
+        PeerInfo peer = PeerMapper.fromBytes(peerBytes);
+        String peerName = peer.getName();
+
+        // Parameter: File Name
+        byte[] fileNameBytes = new byte[in.readInt()];
+        in.readFully(fileNameBytes);
+        String fileName = new String(fileNameBytes);
+
+        byte[] bytes = localVault.load(peerName, fileName);
+
+        responseFile(out, bytes);
+    }
+
     private void responseSuccess(DataOutputStream out) throws IOException {
         out.writeInt(PeerResponseType.Success.ordinal());
+        out.flush();
+    }
+
+    private void responseFile(DataOutputStream out, byte[] fileBytes) throws IOException {
+        out.writeInt(PeerResponseType.File.ordinal());
+        out.writeInt(fileBytes.length);
+        out.write(fileBytes);
         out.flush();
     }
 

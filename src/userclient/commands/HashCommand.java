@@ -1,7 +1,7 @@
 package userclient.commands;
 
 import userclient.UserInteraction;
-import hashing.BytesAsHexPrinter;
+import hashing.BytesAsHex;
 import hashing.BytesHasher;
 import hashing.SHA256MerkleBytesHasher;
 import io.local.FileAccess;
@@ -50,7 +50,7 @@ public class HashCommand implements Command {
 
         Duration totalTime = Duration.between(startTime, endTime);
 
-        user.say(String.format("%s (%s)", BytesAsHexPrinter.toString(hash), toPrettyString(totalTime)));
+        user.say(String.format("%s (%s)", BytesAsHex.toString(hash), toPrettyString(totalTime)));
     }
 
     private String toPrettyString(Duration duration){

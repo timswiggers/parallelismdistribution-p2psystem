@@ -52,7 +52,7 @@ public final class FileSystemEntriesRepository {
         xmlEntry.setName(entry.getName());
         xmlEntry.setSize(entry.getSize());
         xmlEntry.setHash(entry.getHash());
-        xmlEntry.setPeer(entry.getPeer().getName());
+        xmlEntry.setPeer(PeerMapper.asString(entry.getPeer()));
 
         return xmlEntry;
     }

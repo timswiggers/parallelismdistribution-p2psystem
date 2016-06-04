@@ -2,11 +2,11 @@ package userclient.commands;
 
 import filesystem.FileSystemEntry;
 import filesystem.FileSystemIndex;
+import hashing.BytesAsHex;
 import hashing.BytesHasher;
 import hashing.SHA256MerkleBytesHasher;
 import io.local.FileAccess;
 import peers.PeerInfo;
-import peers.PeerIndex;
 import peers.network.P2PNetwork;
 import userclient.UserInteraction;
 import vault.remote.RemoteVault;
@@ -69,12 +69,13 @@ public class GetCommand implements Command {
         user.say("Comparing hash...");
         BytesHasher hasher = new SHA256MerkleBytesHasher(1000 * 1000, true);
         byte[] downloadedFileHash = hasher.hash(downloadedBytes);
-        byte[] originalHash = fileEntry.getHash().getBytes();
+        byte[] originalHash = BytesAsHex.toBytes(fileEntry.getHash());
 
         boolean hashOK = Arrays.equals(originalHash, downloadedFileHash);
         if(!hashOK) {
             user.sayError("The downloaded file has been tampered with!");
-            user.say("Out of security reasons, we won't download the file");
+            user.say(String.format("Original hash: %s", BytesAsHex.toString(originalHash)));
+            user.say(String.format("Download hash: %s", BytesAsHex.toString(downloadedFileHash)));
             return;
         }
 

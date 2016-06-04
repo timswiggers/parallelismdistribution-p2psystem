@@ -2,7 +2,7 @@ package userclient.commands;
 
 import filesystem.FileSystemEntry;
 import filesystem.FileSystemIndex;
-import hashing.BytesAsHexPrinter;
+import hashing.BytesAsHex;
 import hashing.BytesHasher;
 import hashing.SHA256MerkleBytesHasher;
 import io.local.FileAccess;
@@ -61,7 +61,7 @@ public class PutCommand implements Command {
         byte[] hash = hasher.hash(bytes);
 
         int size = bytes.length;
-        String hashString = BytesAsHexPrinter.toString(hash);
+        String hashString = BytesAsHex.toString(hash);
         user.say("done!");
 
         user.sayPartly("Uploading the file... ");

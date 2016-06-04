@@ -83,7 +83,48 @@ public class RemoteVault {
         }
     }
 
-    public byte[] downloadFile(String name) {
-        throw new RuntimeException("NOT IMPLEMENTED YET");
+    public byte[] downloadFile(String fileName) throws IOException {
+        InetSocketAddress address = new InetSocketAddress(peerInfo.getIpAddress(), peerInfo.getPort());
+
+        try (Socket socket = new Socket()) {
+
+            socket.connect(address);
+
+            try(DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
+                DataInputStream inputStream = new DataInputStream(socket.getInputStream())) {
+
+                // Send request
+                // Parameter: Command
+                outputStream.writeInt(PeerRequestType.DownloadFile.ordinal());
+                // Parameter: Peer
+                outputStream.writeInt(PeerMapper.asBytes(peerInfo).length);
+                outputStream.write(PeerMapper.asBytes(peerInfo));
+                // Parameter: File Name
+                outputStream.writeInt(fileName.length());
+                outputStream.writeBytes(fileName);
+
+                outputStream.flush();
+
+                // Get response
+                PeerResponseType response = PeerResponseType.values()[inputStream.readInt()];
+
+                if(response == PeerResponseType.File){
+
+                    byte[] fileBytes = new byte[inputStream.readInt()];
+                    inputStream.readFully(fileBytes);
+
+                    return fileBytes;
+
+                } else if(response == PeerResponseType.Error) {
+                    byte[] messageBytes = new byte[inputStream.readInt()];
+                    inputStream.readFully(messageBytes);
+                    String message = new String(messageBytes);
+
+                    throw new RuntimeException(message);
+                } else{
+                    throw new RuntimeException("Unexpected response: " + response.toString());
+                }
+            }
+        }
     }
 }

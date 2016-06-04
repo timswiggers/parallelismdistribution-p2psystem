@@ -5,5 +5,6 @@ package peers.communication;
  */
 public enum PeerResponseType {
     Error,
-    Success
+    Success,
+    File
 }
