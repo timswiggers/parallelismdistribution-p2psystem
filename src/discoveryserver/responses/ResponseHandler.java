@@ -1,4 +1,4 @@
-package discovery.responses;
+package discoveryserver.responses;
 
 import peers.PeerInfo;
 

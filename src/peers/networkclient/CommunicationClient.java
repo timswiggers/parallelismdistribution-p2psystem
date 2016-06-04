@@ -1,7 +1,7 @@
-package peers.communication;
+package peers.networkclient;
 
 import peers.PeerIndex;
-import vault.local.LocalVault;
+import vault.Vault;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -11,16 +11,14 @@ public class CommunicationClient extends Thread {
 
     private int port;
     private final PeerIndex peers;
-    private final LocalVault localVault;
+    private final Vault vault;
     private boolean running;
 
-    public CommunicationClient(int port, PeerIndex peers, LocalVault localVault) {
+    public CommunicationClient(int port, PeerIndex peers, Vault vault) {
         this.port = port;
         this.peers = peers;
-        this.localVault = localVault;
+        this.vault = vault;
     }
-
-    public int getPort() { return port; }
 
     @Override
     public void run() {
@@ -40,7 +38,7 @@ public class CommunicationClient extends Thread {
             while (running) {
                 try {
                     Socket requestSocket = server.accept();
-                    RequestHandler requestHandler = new RequestHandler(requestSocket, peers, localVault);
+                    RequestHandler requestHandler = new RequestHandler(requestSocket, peers, vault);
 
                     // Runs the handling of the request in a new thread, allowing other requests to be handled.
                     requestHandler.start();

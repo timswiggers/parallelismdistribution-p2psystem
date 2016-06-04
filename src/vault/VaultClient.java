@@ -1,18 +1,18 @@
-package vault.remote;
+package vault;
 
 import peers.PeerInfo;
 import peers.PeerMapper;
-import peers.communication.PeerRequestType;
-import peers.communication.PeerResponseType;
+import peers.networkclient.PeerRequestType;
+import peers.networkclient.PeerResponseType;
 
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-public class RemoteVault {
+public class VaultClient {
     private final PeerInfo peerInfo;
 
-    public RemoteVault(PeerInfo peerInfo) {
+    public VaultClient(PeerInfo peerInfo) {
         this.peerInfo = peerInfo;
     }
 

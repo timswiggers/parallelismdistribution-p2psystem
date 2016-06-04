@@ -8,9 +8,8 @@ import hashing.BytesHasher;
 import hashing.SHA256MerkleBytesHasher;
 import io.local.FileAccess;
 import peers.PeerInfo;
-import peers.network.P2PNetwork;
 import userclient.UserInteraction;
-import vault.remote.RemoteVault;
+import vault.VaultClient;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -21,12 +20,10 @@ public class GetCommand implements Command {
 
     private final FileAccess files;
     private final FileSystemIndex fileIndex;
-    private final P2PNetwork network;
 
-    public GetCommand(FileAccess files, FileSystemIndex fileIndex, P2PNetwork network) {
+    public GetCommand(FileAccess files, FileSystemIndex fileIndex) {
         this.files = files;
         this.fileIndex = fileIndex;
-        this.network = network;
     }
 
     @Override
@@ -53,7 +50,7 @@ public class GetCommand implements Command {
         FileSystemEntry fileEntry = fileIndex.get(fileName);
         PeerInfo peerInfo = fileEntry.getPeer();
 
-        RemoteVault vault = new RemoteVault(peerInfo);
+        VaultClient vault = new VaultClient(peerInfo);
         boolean couldConnect = vault.ping();
         if(!couldConnect){
             user.sayError("Could not connect to peer owner of the file");
@@ -62,8 +59,8 @@ public class GetCommand implements Command {
         }
 
         user.sayPartly("Downloading file... ");
-        byte[] downloadedBytes = vault.downloadFile(fileEntry.getName());
-        if(downloadedBytes == null){
+        byte[] encryptedBytes = vault.downloadFile(fileEntry.getName());
+        if(encryptedBytes == null){
             user.sayError("The peer owner of the file could not locate the file");
             return;
         }
@@ -71,7 +68,7 @@ public class GetCommand implements Command {
 
         user.say("Comparing hash... ");
         BytesHasher hasher = new SHA256MerkleBytesHasher(1000 * 1000, true);
-        byte[] downloadedFileHash = hasher.hash(downloadedBytes);
+        byte[] downloadedFileHash = hasher.hash(encryptedBytes);
         byte[] originalHash = fileEntry.getHash();
 
         boolean hashOK = Arrays.equals(originalHash, downloadedFileHash);
@@ -85,7 +82,7 @@ public class GetCommand implements Command {
 
         byte[] key = fileEntry.getKey();
         byte[] initVector = fileEntry.getIV();
-        byte[] decryptedBytes = Encryptor.decrypt(key, initVector, downloadedBytes);
+        byte[] decryptedBytes = Encryptor.decrypt(key, initVector, encryptedBytes);
 
         files.saveFileBytes(fileEntry.getName(), decryptedBytes);
 

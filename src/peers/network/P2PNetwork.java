@@ -1,13 +1,12 @@
 package peers.network;
 
-import discovery.DiscoveryClient;
+import discoveryserver.DiscoveryClient;
 import peers.PeerIndex;
 import peers.PeerInfo;
-import peers.communication.CommunicationClient;
+import peers.networkclient.CommunicationClient;
 import peers.selector.SuccessfullPingSelector;
 import peers.selector.PeerSelector;
 import userclient.UserInteraction;
-import vault.remote.RemoteVault;
 
 import java.io.IOException;
 import java.util.*;
@@ -92,7 +91,7 @@ public class P2PNetwork {
         communicationClient.interrupt();
         boolean successfullyLeft = discoveryClient.leavePeers();
         if(!successfullyLeft){
-            throw new RuntimeException("Could not connect to the discovery client");
+            throw new RuntimeException("Could not connect to the discoveryserver client");
         }
         networkState = NetworkState.Disconnected;
     }
@@ -132,7 +131,7 @@ public class P2PNetwork {
                 peerIndex.add(peer);
             }
         } catch (JAXBException |IOException e) {
-            System.out.println("\nCould not connect to discovery server: " + e.getMessage());
+            System.out.println("\nCould not connect to discoveryserver server: " + e.getMessage());
             e.printStackTrace();
         }
     }*/

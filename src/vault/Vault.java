@@ -1,17 +1,16 @@
-package vault.local;
+package vault;
 
 import io.local.FileAccess;
 import io.local.LocalFileSystem;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class LocalVault {
+public class Vault {
     private final Path vaultRoot;
 
-    public LocalVault(Path vaultRoot) {
+    public Vault(Path vaultRoot) {
 
         this.vaultRoot = vaultRoot;
     }

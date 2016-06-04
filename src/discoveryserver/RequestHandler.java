@@ -1,9 +1,8 @@
-package discovery;
+package discoveryserver;
 
-import discovery.responses.PeersAvailableResponseHandler;
-import discovery.responses.ResponseHandler;
+import discoveryserver.responses.PeersAvailableResponseHandler;
+import discoveryserver.responses.ResponseHandler;
 import peers.PeerInfo;
-import peers.communication.PeerResponseType;
 
 import java.io.*;
 import java.net.Socket;

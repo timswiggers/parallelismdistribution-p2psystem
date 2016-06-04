@@ -1,4 +1,4 @@
-package discovery;
+package discoveryserver;
 
 import peers.PeerInfo;
 

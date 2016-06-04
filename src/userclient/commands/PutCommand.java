@@ -9,7 +9,7 @@ import io.local.FileAccess;
 import peers.PeerInfo;
 import peers.network.P2PNetwork;
 import userclient.UserInteraction;
-import vault.remote.RemoteVault;
+import vault.VaultClient;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -80,7 +80,7 @@ public class PutCommand implements Command {
         }
 
         PeerInfo peer = optionalPeer.get();
-        RemoteVault vault = new RemoteVault(peer);
+        VaultClient vault = new VaultClient(peer);
         vault.uploadFile(fileKey, encryptedFile);
         user.say("done!");
 

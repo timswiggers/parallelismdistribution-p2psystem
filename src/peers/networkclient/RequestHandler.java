@@ -1,9 +1,9 @@
-package peers.communication;
+package peers.networkclient;
 
 import peers.PeerIndex;
 import peers.PeerInfo;
 import peers.PeerMapper;
-import vault.local.LocalVault;
+import vault.Vault;
 
 import javax.xml.bind.JAXBException;
 import java.io.*;
@@ -12,13 +12,13 @@ import java.net.Socket;
 class RequestHandler extends Thread {
     private final Socket requestSocket;
     private final PeerIndex peers;
-    private final LocalVault localVault;
+    private final Vault vault;
 
-    public RequestHandler(Socket requestSocket, PeerIndex peers, LocalVault localVault) {
+    public RequestHandler(Socket requestSocket, PeerIndex peers, Vault vault) {
         super("Peer.Communication.RequestHandler");
         this.requestSocket = requestSocket;
         this.peers = peers;
-        this.localVault = localVault;
+        this.vault = vault;
     }
 
     @Override
@@ -79,7 +79,7 @@ class RequestHandler extends Thread {
         byte[] bytes = new byte[in.readInt()];
         in.readFully(bytes);
 
-        localVault.store(peerName, fileName, bytes);
+        vault.store(peerName, fileName, bytes);
 
         responseSuccess(out);
     }
@@ -96,7 +96,7 @@ class RequestHandler extends Thread {
         in.readFully(fileNameBytes);
         String fileName = new String(fileNameBytes);
 
-        byte[] bytes = localVault.load(peerName, fileName);
+        byte[] bytes = vault.load(peerName, fileName);
 
         responseFile(out, bytes);
     }

@@ -1,4 +1,4 @@
-package discovery;
+package discoveryserver;
 
 import java.io.*;
 import java.net.InetAddress;

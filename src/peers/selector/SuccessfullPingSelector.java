@@ -2,7 +2,7 @@ package peers.selector;
 
 import peers.PeerInfo;
 import peers.network.P2PNetwork;
-import vault.remote.RemoteVault;
+import vault.VaultClient;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -21,7 +21,7 @@ public class SuccessfullPingSelector implements PeerSelector {
         }
 
         return peers.stream().filter(peer -> {
-            RemoteVault vault = new RemoteVault(peer);
+            VaultClient vault = new VaultClient(peer);
             return vault.ping();
         }).findFirst();
     }

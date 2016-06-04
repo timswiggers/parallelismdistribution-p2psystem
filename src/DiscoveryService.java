@@ -1,10 +1,4 @@
-import discovery.*;
-import peers.PeerInfo;
-
-import java.io.IOException;
-import java.net.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.CopyOnWriteArrayList;
+import discoveryserver.*;
 
 public class DiscoveryService {
 

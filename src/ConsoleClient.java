@@ -1,14 +1,14 @@
-import discovery.DiscoveryClient;
+import discoveryserver.DiscoveryClient;
 import filesystem.FileSystemIndex;
 import peers.PeerIndex;
-import peers.communication.CommunicationClient;
+import peers.networkclient.CommunicationClient;
 import peers.network.P2PNetwork;
 import userclient.UserInteraction;
 import userclient.console.CommandExecutor;
 import userclient.console.ConsoleUserInteraction;
 import io.local.FileAccess;
 import io.local.LocalFileSystem;
-import vault.local.LocalVault;
+import vault.Vault;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -36,14 +36,14 @@ public class ConsoleClient {
             user.say("Starting P2P Console Client");
 
             Path vaultRoot = Paths.get(appRoot.toString(), "vault");
-            LocalVault localVault = new LocalVault(vaultRoot);
+            Vault vault = new Vault(vaultRoot);
 
-            // We use the DiscoveryClient to send requests to the discovery server
-            // We use the CommunicationClient to receive responses from the network (peers & discovery server)
+            // We use the DiscoveryClient to send requests to the discoveryserver server
+            // We use the CommunicationClient to receive responses from the network (peers & discoveryserver server)
             DiscoveryClient discoveryClient = new DiscoveryClient(clientPort, InetAddress.getLocalHost(), DiscoveryService.port);
-            CommunicationClient communicationClient = new CommunicationClient(clientPort, peers, localVault);
+            CommunicationClient communicationClient = new CommunicationClient(clientPort, peers, vault);
 
-            // We connect to the P2P network by registering this client with the discovery server.
+            // We connect to the P2P network by registering this client with the discoveryserver server.
             P2PNetwork network = new P2PNetwork(user, peers, discoveryClient, communicationClient);
             user.sayPartly("Connecting to the network... ");
             network.connect();

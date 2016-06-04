@@ -20,7 +20,7 @@ public class DefaultCommandFactory implements CommandFactory {
     public Command CreatePutCommand() { return new PutCommand(files, fileIndex, network); }
 
     @Override
-    public Command CreateGetCommand() { return new GetCommand(files, fileIndex, network); }
+    public Command CreateGetCommand() { return new GetCommand(files, fileIndex); }
 
     @Override
     public Command CreateHashCommand() {

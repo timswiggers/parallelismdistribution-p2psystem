@@ -1,4 +1,4 @@
-package peers.communication;
+package peers.networkclient;
 
 public enum PeerRequestType {
     AcceptPeers,

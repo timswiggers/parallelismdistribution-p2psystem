@@ -1,4 +1,4 @@
-package peers.communication;
+package peers.networkclient;
 
 /**
  * Created by timsw on 02/06/2016.

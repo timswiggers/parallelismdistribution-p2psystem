@@ -1,8 +1,8 @@
-package discovery.responses;
+package discoveryserver.responses;
 
 import peers.PeerInfo;
 import peers.PeerMapper;
-import peers.communication.PeerRequestType;
+import peers.networkclient.PeerRequestType;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
