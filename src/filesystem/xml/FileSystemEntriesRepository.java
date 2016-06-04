@@ -42,9 +42,10 @@ public final class FileSystemEntriesRepository {
         int size = xmlEntry.getSize();
         String hash = xmlEntry.getHash();
         String key = xmlEntry.getKey();
+        String iv = xmlEntry.getIV();
         PeerInfo peer = PeerMapper.fromString(xmlEntry.getPeer());
 
-        return new FileSystemEntry(name, size, hash, key, peer);
+        return new FileSystemEntry(name, size, hash, key, iv, peer);
     }
 
     private static XmlFileSystemEntry mapToXml(FileSystemEntry entry) {
@@ -54,6 +55,7 @@ public final class FileSystemEntriesRepository {
         xmlEntry.setSize(entry.getSize());
         xmlEntry.setHash(entry.getHash());
         xmlEntry.setKey(entry.getKey());
+        xmlEntry.setIV(entry.getIV());
         xmlEntry.setPeer(PeerMapper.asString(entry.getPeer()));
 
         return xmlEntry;

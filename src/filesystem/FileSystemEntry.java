@@ -8,14 +8,16 @@ public class FileSystemEntry {
     private final int size;
     private final String hash;
     private final String key;
+    private final String iv;
     private final PeerInfo peer;
 
-    public FileSystemEntry(String name, int size, String hash, String key, PeerInfo peer) {
+    public FileSystemEntry(String name, int size, String hash, String key, String iv, PeerInfo peer) {
         this.name = name;
         this.size = size;
         this.hash = hash;
-        this.peer = peer;
         this.key = key;
+        this.iv = iv;
+        this.peer = peer;
     }
 
     public String getName() {
@@ -31,6 +33,8 @@ public class FileSystemEntry {
     }
 
     public String getKey() { return key; }
+
+    public String getIV() { return iv; }
 
     public PeerInfo getPeer() { return peer; }
 }
