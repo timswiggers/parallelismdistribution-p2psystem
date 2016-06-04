@@ -41,7 +41,7 @@ public class XmlFileSystemEntry {
 
     public String getIV() { return iv; }
 
-    public void setIV(String key) { this.iv = iv; }
+    public void setIV(String iv) { this.iv = iv; }
 
     public void setKey(String key) { this.key = key; }
 

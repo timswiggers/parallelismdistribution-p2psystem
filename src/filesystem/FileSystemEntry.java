@@ -6,12 +6,12 @@ public class FileSystemEntry {
 
     private final String name;
     private final int size;
-    private final String hash;
-    private final String key;
-    private final String iv;
+    private final byte[] hash;
+    private final byte[] key;
+    private final byte[] iv;
     private final PeerInfo peer;
 
-    public FileSystemEntry(String name, int size, String hash, String key, String iv, PeerInfo peer) {
+    public FileSystemEntry(String name, int size, byte[] hash, byte[] key, byte[] iv, PeerInfo peer) {
         this.name = name;
         this.size = size;
         this.hash = hash;
@@ -28,13 +28,13 @@ public class FileSystemEntry {
         return size;
     }
 
-    public String getHash() {
+    public byte[] getHash() {
         return hash;
     }
 
-    public String getKey() { return key; }
+    public byte[] getKey() { return key; }
 
-    public String getIV() { return iv; }
+    public byte[] getIV() { return iv; }
 
     public PeerInfo getPeer() { return peer; }
 }

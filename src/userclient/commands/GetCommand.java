@@ -1,5 +1,6 @@
 package userclient.commands;
 
+import encryption.Encryptor;
 import filesystem.FileSystemEntry;
 import filesystem.FileSystemIndex;
 import hashing.BytesAsHex;
@@ -69,7 +70,7 @@ public class GetCommand implements Command {
         user.say("Comparing hash...");
         BytesHasher hasher = new SHA256MerkleBytesHasher(1000 * 1000, true);
         byte[] downloadedFileHash = hasher.hash(downloadedBytes);
-        byte[] originalHash = BytesAsHex.toBytes(fileEntry.getHash());
+        byte[] originalHash = fileEntry.getHash();
 
         boolean hashOK = Arrays.equals(originalHash, downloadedFileHash);
         if(!hashOK) {
@@ -79,7 +80,11 @@ public class GetCommand implements Command {
             return;
         }
 
-        files.saveFileBytes(fileEntry.getName(), downloadedBytes);
+        byte[] key = fileEntry.getKey();
+        byte[] initVector = fileEntry.getIV();
+        byte[] decryptedBytes = Encryptor.decrypt(key, initVector, downloadedBytes);
+
+        files.saveFileBytes(fileEntry.getName(), decryptedBytes);
 
         user.say("The file was successfully downloaded");
     }

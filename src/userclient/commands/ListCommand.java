@@ -1,5 +1,6 @@
 package userclient.commands;
 
+import hashing.BytesAsHex;
 import userclient.UserInteraction;
 import filesystem.FileSystemEntry;
 import filesystem.FileSystemIndex;
@@ -42,7 +43,7 @@ public class ListCommand implements Command {
     private static String toPrettyString(FileSystemEntry entry){
         String name = entry.getName();
         String size = humanReadableByteCount(entry.getSize(), true);
-        String hash = entry.getHash();
+        String hash = BytesAsHex.toString(entry.getHash());
 
         return String.format("%-30s %-30s %s", name, size, hash);
     }

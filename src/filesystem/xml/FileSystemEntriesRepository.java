@@ -1,6 +1,7 @@
 package filesystem.xml;
 
 import filesystem.FileSystemEntry;
+import hashing.BytesAsHex;
 import peers.PeerInfo;
 import peers.PeerMapper;
 
@@ -40,9 +41,9 @@ public final class FileSystemEntriesRepository {
     private static FileSystemEntry mapFromXml(XmlFileSystemEntry xmlEntry) {
         String name = xmlEntry.getName();
         int size = xmlEntry.getSize();
-        String hash = xmlEntry.getHash();
-        String key = xmlEntry.getKey();
-        String iv = xmlEntry.getIV();
+        byte[] hash = BytesAsHex.toBytes(xmlEntry.getHash());
+        byte[] key = BytesAsHex.toBytes(xmlEntry.getKey());
+        byte[] iv = BytesAsHex.toBytes(xmlEntry.getIV());
         PeerInfo peer = PeerMapper.fromString(xmlEntry.getPeer());
 
         return new FileSystemEntry(name, size, hash, key, iv, peer);
@@ -53,9 +54,9 @@ public final class FileSystemEntriesRepository {
 
         xmlEntry.setName(entry.getName());
         xmlEntry.setSize(entry.getSize());
-        xmlEntry.setHash(entry.getHash());
-        xmlEntry.setKey(entry.getKey());
-        xmlEntry.setIV(entry.getIV());
+        xmlEntry.setHash(BytesAsHex.toString(entry.getHash()));
+        xmlEntry.setKey(BytesAsHex.toString(entry.getKey()));
+        xmlEntry.setIV(BytesAsHex.toString(entry.getIV()));
         xmlEntry.setPeer(PeerMapper.asString(entry.getPeer()));
 
         return xmlEntry;

@@ -1,8 +1,8 @@
 package userclient.commands;
 
+import encryption.Encryptor;
 import filesystem.FileSystemEntry;
 import filesystem.FileSystemIndex;
-import hashing.BytesAsHex;
 import hashing.BytesHasher;
 import hashing.SHA256MerkleBytesHasher;
 import io.local.FileAccess;
@@ -14,6 +14,7 @@ import vault.remote.RemoteVault;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.util.Optional;
 
 public class PutCommand implements Command {
@@ -32,12 +33,12 @@ public class PutCommand implements Command {
     public void execute(UserInteraction user) {
         try {
             executePut(user);
-        } catch (IOException | JAXBException | NoSuchAlgorithmException e) {
+        } catch (IOException | JAXBException | NoSuchProviderException | NoSuchAlgorithmException e) {
             user.sayError(e);
         }
     }
 
-    private void executePut(UserInteraction user) throws IOException, JAXBException, NoSuchAlgorithmException {
+    private void executePut(UserInteraction user) throws IOException, JAXBException, NoSuchAlgorithmException, NoSuchProviderException {
         String fileName = user.askForValue("filename", "..\\383MB.exe");
         if(fileName == null) {
             return;
@@ -56,14 +57,18 @@ public class PutCommand implements Command {
             user.say(String.format("File '%s' was not found.", fileName));
             return;
         }
+        int size = bytes.length;
         user.say("done!");
+
+        user.sayPartly("Encrypting the file... ");
+        byte[] key = Encryptor.generateKey();
+        byte[] initVector = Encryptor.generateInitVector();
+        byte[] encryptedFile = Encryptor.encrypt(key, initVector, bytes);
+        user.say("Done!");
 
         user.sayPartly("Hashing the file... ");
         BytesHasher hasher = new SHA256MerkleBytesHasher(1000 * 1000, true);
-        byte[] hash = hasher.hash(bytes);
-
-        int size = bytes.length;
-        String hashString = BytesAsHex.toString(hash);
+        byte[] hash = hasher.hash(encryptedFile);
         user.say("done!");
 
         user.sayPartly("Uploading the file... ");
@@ -76,10 +81,10 @@ public class PutCommand implements Command {
 
         PeerInfo peer = optionalPeer.get();
         RemoteVault vault = new RemoteVault(peer);
-        vault.uploadFile(fileKey, bytes);
+        vault.uploadFile(fileKey, encryptedFile);
         user.say("done!");
 
-        fileIndex.add(new FileSystemEntry(fileKey, size, hashString, "", "", peer));
+        fileIndex.add(new FileSystemEntry(fileKey, size, hash, key, initVector, peer));
 
         user.say("The file was put on the system");
     }
