@@ -50,11 +50,13 @@ public class PutCommand implements Command {
             return;
         }
 
+        user.sayPartly("Loading the file... ");
         byte[] bytes = files.getFileBytes(fileName);
         if(bytes == null || bytes.length < 0) {
             user.say(String.format("File '%s' was not found.", fileName));
             return;
         }
+        user.say("done!");
 
         user.sayPartly("Hashing the file... ");
         BytesHasher hasher = new SHA256MerkleBytesHasher(1000 * 1000, true);
@@ -77,7 +79,7 @@ public class PutCommand implements Command {
         vault.uploadFile(fileKey, bytes);
         user.say("done!");
 
-        fileIndex.add(new FileSystemEntry(fileKey, size, hashString, peer));
+        fileIndex.add(new FileSystemEntry(fileKey, size, hashString, "", peer));
 
         user.say("The file was put on the system");
     }

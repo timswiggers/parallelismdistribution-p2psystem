@@ -9,6 +9,7 @@ public class XmlFileSystemEntry {
     private String name;
     private int size;
     private String hash;
+    private String key;
     private String peer;
 
     public String getName() {
@@ -34,6 +35,10 @@ public class XmlFileSystemEntry {
     public void setHash(String hash) {
         this.hash = hash;
     }
+
+    public String getKey() { return key; }
+
+    public void setKey(String key) { this.key = key; }
 
     public String getPeer() { return peer; }
 
