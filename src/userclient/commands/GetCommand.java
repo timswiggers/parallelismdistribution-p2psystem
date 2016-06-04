@@ -49,6 +49,7 @@ public class GetCommand implements Command {
             return;
         }
 
+        // Search the file in the list of files we stored
         FileSystemEntry fileEntry = fileIndex.get(fileName);
         PeerInfo peerInfo = fileEntry.getPeer();
 
@@ -60,14 +61,15 @@ public class GetCommand implements Command {
             return;
         }
 
-        user.say("Downloading file...");
+        user.sayPartly("Downloading file... ");
         byte[] downloadedBytes = vault.downloadFile(fileEntry.getName());
         if(downloadedBytes == null){
             user.sayError("The peer owner of the file could not locate the file");
             return;
         }
+        user.say("done!");
 
-        user.say("Comparing hash...");
+        user.say("Comparing hash... ");
         BytesHasher hasher = new SHA256MerkleBytesHasher(1000 * 1000, true);
         byte[] downloadedFileHash = hasher.hash(downloadedBytes);
         byte[] originalHash = fileEntry.getHash();
@@ -79,6 +81,7 @@ public class GetCommand implements Command {
             user.say(String.format("Download hash: %s", BytesAsHex.toString(downloadedFileHash)));
             return;
         }
+        user.say("OK!");
 
         byte[] key = fileEntry.getKey();
         byte[] initVector = fileEntry.getIV();
