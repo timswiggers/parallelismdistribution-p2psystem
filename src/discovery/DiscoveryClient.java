@@ -4,8 +4,6 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Collection;
 
 public class DiscoveryClient {
     private final int clientPort;
@@ -31,35 +29,29 @@ public class DiscoveryClient {
     }
 
     private DiscoveryResponseType send(DiscoveryRequestType command) throws IOException {
-        return send(command, new ArrayList<>());
-    }
-
-    private DiscoveryResponseType send(DiscoveryRequestType command, Collection<String> requestData) throws IOException {
         InetSocketAddress address = new InetSocketAddress(serverAddress, serverPort);
 
         try (Socket socket = new Socket()) {
 
             socket.connect(address);
 
-            try (PrintWriter writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
-                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+            try (DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
+                DataInputStream inputStream = new DataInputStream(socket.getInputStream())) {
 
-                // The first two lines are always the clients communication port and the command of the request, respectively
-                writer.printf("%s\n", clientPort);
-                writer.printf("%s\n", command);
+                // Send request
+                outputStream.writeInt(clientPort);
+                outputStream.writeInt(command.ordinal());
+                outputStream.flush();
 
-                for(String requestString : requestData) {
-                    writer.printf("%s\n", requestString);
-                }
-
-                writer.flush();
-
-                String responseString = reader.readLine();
-                DiscoveryResponseType response = DiscoveryResponseType.valueOf(responseString);
+                // Get response
+                DiscoveryResponseType response = DiscoveryResponseType.values()[inputStream.readInt()];
 
                 if(response == DiscoveryResponseType.Error){
-                    String errorMessage = reader.readLine();
-                    throw new RuntimeException(errorMessage);
+                    byte[] messageBytes = new byte[inputStream.readInt()];
+                    inputStream.readFully(messageBytes);
+                    String message = new String(messageBytes);
+
+                    throw new RuntimeException(message);
                 }
 
                 return response;

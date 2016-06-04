@@ -8,6 +8,7 @@ import userclient.console.CommandExecutor;
 import userclient.console.ConsoleUserInteraction;
 import io.local.FileAccess;
 import io.local.LocalFileSystem;
+import vault.local.LocalVault;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -34,12 +35,13 @@ public class ConsoleClient {
 
             user.say("Starting P2P Console Client");
 
+            Path vaultRoot = Paths.get(appRoot.toString(), "vault");
+            LocalVault localVault = new LocalVault(vaultRoot);
+
             // We use the DiscoveryClient to send requests to the discovery server
             // We use the CommunicationClient to receive responses from the network (peers & discovery server)
             DiscoveryClient discoveryClient = new DiscoveryClient(clientPort, InetAddress.getLocalHost(), DiscoveryService.port);
-            CommunicationClient communicationClient = new CommunicationClient(clientPort, peers);
-
-            // TODO: Spin up vault
+            CommunicationClient communicationClient = new CommunicationClient(clientPort, peers, localVault);
 
             // We connect to the P2P network by registering this client with the discovery server.
             P2PNetwork network = new P2PNetwork(user, peers, discoveryClient, communicationClient);
@@ -55,7 +57,8 @@ public class ConsoleClient {
                     "Created by Tim Swiggers (0528435)\n" +
                     "Running from " + appRoot.toString() + "\n");
 
-            commandExecutor.executeUserCommands(); // Will loop until the user issues the quit command
+            // Now we loop until the user issues the quit command
+            commandExecutor.executeUserCommands();
             network.disconnect();
 
         } catch(Exception e){

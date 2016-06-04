@@ -1,6 +1,7 @@
 package vault.remote;
 
 import peers.PeerInfo;
+import peers.PeerMapper;
 import peers.communication.PeerRequestType;
 import peers.communication.PeerResponseType;
 
@@ -22,14 +23,15 @@ public class RemoteVault {
 
             socket.connect(address);
 
-            try (PrintWriter writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
-                 BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+            try (DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
+                 DataInputStream inputStream = new DataInputStream(socket.getInputStream())) {
 
-                writer.printf("%s\n", PeerRequestType.Ping.toString());
-                writer.flush();
+                // Send request
+                outputStream.writeInt(PeerRequestType.Ping.ordinal());
+                outputStream.flush();
 
-                String responseString = reader.readLine();
-                PeerResponseType response = PeerResponseType.valueOf(responseString);
+                // Get response
+                PeerResponseType response = PeerResponseType.values()[inputStream.readInt()];
 
                 if(response == PeerResponseType.Error){
                     return false;
@@ -42,40 +44,46 @@ public class RemoteVault {
         }
     }
 
-    public byte[] downloadFile(String name) {
-        throw new RuntimeException("NOT IMPLEMENTED YET");
-    }
-
-    public void uploadFile(String name, byte[] bytes) {
+    public void uploadFile(String fileName, byte[] bytes) throws IOException {
         InetSocketAddress address = new InetSocketAddress(peerInfo.getIpAddress(), peerInfo.getPort());
 
         try (Socket socket = new Socket()) {
 
             socket.connect(address);
 
-            try (OutputStream outputStream = socket.getOutputStream();
-                 PrintWriter writer = new PrintWriter(new OutputStreamWriter(outputStream));
-                 BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+            try(DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
+                DataInputStream inputStream = new DataInputStream(socket.getInputStream())) {
 
-                writer.printf("%s\n", PeerRequestType.UploadFile.toString());
-                writer.printf("%s\n", name);
-                writer.printf("%d", bytes.length);
-                writer.flush();
-
+                // Send request
+                // Parameter: Command
+                outputStream.writeInt(PeerRequestType.UploadFile.ordinal());
+                // Parameter: Peer
+                outputStream.writeInt(PeerMapper.asBytes(peerInfo).length);
+                outputStream.write(PeerMapper.asBytes(peerInfo));
+                // Parameter: File Name
+                outputStream.writeInt(fileName.length());
+                outputStream.writeBytes(fileName);
+                // Parameter: File Bytes
+                outputStream.writeInt(bytes.length);
                 outputStream.write(bytes);
+
                 outputStream.flush();
 
-                String responseString = reader.readLine();
-                PeerResponseType response = PeerResponseType.valueOf(responseString);
+                // Get response
+                PeerResponseType response = PeerResponseType.values()[inputStream.readInt()];
 
                 if(response == PeerResponseType.Error){
-                    String errorMessage = reader.readLine();
-                    throw new RuntimeException(errorMessage);
+                    byte[] messageBytes = new byte[inputStream.readInt()];
+                    inputStream.readFully(messageBytes);
+                    String message = new String(messageBytes);
+
+                    throw new RuntimeException(message);
                 }
             }
-
-        } catch (IOException e) {
-            return false;
         }
+    }
+
+    public byte[] downloadFile(String name) {
+        throw new RuntimeException("NOT IMPLEMENTED YET");
     }
 }

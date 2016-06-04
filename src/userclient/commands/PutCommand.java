@@ -73,8 +73,8 @@ public class PutCommand implements Command {
         }
 
         PeerInfo peer = optionalPeer.get();
-        RemoteVault vault = network.getVaultForPeer(peer);
-        vault.uploadFile(fileName, bytes);
+        RemoteVault vault = new RemoteVault(peer);
+        vault.uploadFile(fileKey, bytes);
         user.say("done!");
 
         fileIndex.add(new FileSystemEntry(fileKey, size, hashString, peer.getName()));

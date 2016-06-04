@@ -1,6 +1,7 @@
 package peers.xml;
 
 import peers.PeerInfo;
+import peers.PeerMapper;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -23,7 +24,7 @@ public class PeersRepository {
 
         XmlPeers entries = (XmlPeers) jaxbUnmarshaller.unmarshal(stream);
 
-        return entries.getPeers().stream().map(PeersRepository::mapFromXml).collect(Collectors.toList());
+        return entries.getPeers().stream().map(PeerMapper::fromXml).collect(Collectors.toList());
     }
 
     public static void write(Collection<PeerInfo> peers, OutputStream stream) throws JAXBException
@@ -34,24 +35,8 @@ public class PeersRepository {
         jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
         XmlPeers xmlPeers = new XmlPeers();
-        xmlPeers.setPeers(peers.stream().map(PeersRepository::mapToXml).collect(Collectors.toList()));
+        xmlPeers.setPeers(peers.stream().map(PeerMapper::asXml).collect(Collectors.toList()));
 
         jaxbMarshaller.marshal(xmlPeers, stream);
-    }
-
-    private static PeerInfo mapFromXml(XmlPeer xmlPeer) {
-        String ipAddress = xmlPeer.getIpAddress();
-        int port = xmlPeer.getPort();
-
-        return new PeerInfo(ipAddress, port);
-    }
-
-    private static XmlPeer mapToXml(PeerInfo peer) {
-        XmlPeer xmlPeer = new XmlPeer();
-
-        xmlPeer.setIpAddress(peer.getIpAddress());
-        xmlPeer.setPort(peer.getPort());
-
-        return xmlPeer;
     }
 }

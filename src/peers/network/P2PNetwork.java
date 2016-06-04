@@ -1,12 +1,10 @@
 package peers.network;
 
 import discovery.DiscoveryClient;
-import filesystem.FileSystemIndex;
-import io.local.FileAccess;
 import peers.PeerIndex;
 import peers.PeerInfo;
 import peers.communication.CommunicationClient;
-import peers.selector.LeastAmountOfFilesSelector;
+import peers.selector.SuccessfullPingSelector;
 import peers.selector.PeerSelector;
 import userclient.UserInteraction;
 import vault.remote.RemoteVault;
@@ -36,7 +34,7 @@ public class P2PNetwork {
         this.peerIndex = peers;
         this.discoveryClient = discoveryClient;
         this.communicationClient = communicationClient;
-        this.peerSelector = new LeastAmountOfFilesSelector(this);
+        this.peerSelector = new SuccessfullPingSelector(this);
         this.networkState  = NetworkState.Disconnected;
         this.networkHealthCheckTimer = new Timer();
     }
@@ -107,7 +105,7 @@ public class P2PNetwork {
     }
 
     private Collection<PeerInfo> doHealthCheckOn(Collection<PeerInfo> peers) {
-        return new ArrayList<>(); // TODO: only return health peers, for now none are healthy
+        return peers; // TODO: only return health peers, for now none are healthy
     }
 
     private void runPeriodicHealthChecks() {
@@ -145,16 +143,5 @@ public class P2PNetwork {
 
     public Collection<PeerInfo> listPeers(){
         return peerIndex.list();
-    }
-
-    public RemoteVault getVaultForPeer(PeerInfo peer){
-        RemoteVault vault = new RemoteVault(peer);
-
-        boolean pingSuccess = vault.ping();
-        if(!pingSuccess){
-            return null; // TODO: Mark peer as unhealthy
-        }
-
-        return vault;
     }
 }

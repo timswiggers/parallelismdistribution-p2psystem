@@ -3,6 +3,7 @@ package discovery;
 import discovery.responses.PeersAvailableResponseHandler;
 import discovery.responses.ResponseHandler;
 import peers.PeerInfo;
+import peers.communication.PeerResponseType;
 
 import java.io.*;
 import java.net.Socket;
@@ -19,10 +20,11 @@ class RequestHandler extends Thread {
     private final Socket socket;
 
     private PeerInfo requester;
-    private BufferedReader requestStream;
-    private PrintWriter responseWriter;
+    private DataInputStream inputStream;
+    private DataOutputStream outputStream;
 
     public RequestHandler(Socket socket, CopyOnWriteArrayList<PeerInfo> peers, ConcurrentLinkedQueue<PeerInfo> peersWaitingForPeersQueue) throws IOException {
+        super("Discovery.RequestHandler");
         this.socket = socket;
         this.peers = peers;
         this.peersWaitingForPeersQueue = peersWaitingForPeersQueue;
@@ -31,8 +33,8 @@ class RequestHandler extends Thread {
     @Override
     public void run() {
         try {
-            this.requestStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            this.responseWriter = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+            this.inputStream = new DataInputStream(socket.getInputStream());
+            this.outputStream = new DataOutputStream(socket.getOutputStream());
 
             handleRequest();
         } catch (IOException e) {
@@ -46,10 +48,10 @@ class RequestHandler extends Thread {
 
     private void handleRequest() throws IOException {
         String peerAddress = socket.getInetAddress().getHostAddress();
-        int peerPort = Integer.parseInt(requestStream.readLine());
+        int peerPort = inputStream.readInt();
 
         requester = getOrCreateRequesterPeer(peerAddress, peerPort);
-        DiscoveryRequestType commandType = DiscoveryRequestType.valueOf(requestStream.readLine());
+        DiscoveryRequestType commandType = DiscoveryRequestType.values()[inputStream.readInt()];
 
         switch(commandType) {
             case Join: { handleJoin(); break; }
@@ -66,7 +68,7 @@ class RequestHandler extends Thread {
     * Client Request: Join
     * */
 
-    private void handleJoin(){
+    private void handleJoin() throws IOException {
         if(peerAlreadyJoined(requester)){
             responseSuccess();
             return; // don't add this peer twice
@@ -86,7 +88,7 @@ class RequestHandler extends Thread {
     * Client Request: Leave
     * */
 
-    private void handleLeave(){
+    private void handleLeave() throws IOException {
         if (requester == null) {
             responseSuccess();
             return;
@@ -105,17 +107,22 @@ class RequestHandler extends Thread {
     * Client Request: RequestPeers
     * */
 
-    private void handleRequestPeers() {
+    private void handleRequestPeers() throws IOException {
         if (requester == null) {
             responseError("First you have to join the network before you can request any peers");
             return;
         }
 
+        if(!peers.contains(requester)){
+            peers.add(requester);
+        }
+
         Collection<PeerInfo> availablePeers = peersWithout(requester);
         if(availablePeers.size() >= 3){
+            responseSuccess();
+
             ResponseHandler responseHandler = new PeersAvailableResponseHandler(requester, availablePeers);
             responseHandler.start();
-            responseSuccess();
 
             System.out.printf("%s | Peers requested: by %s, returned %d peers.\n", new Date(), requester.getName(), availablePeers.size());
 
@@ -141,23 +148,21 @@ class RequestHandler extends Thread {
         return peers.stream().filter(p -> !p.equals(self)).collect(Collectors.toList());
     }
 
-    private void responseSuccess(){
-        responseWriter.printf("%s\n", DiscoveryResponseType.Success);
-        responseWriter.printf("RESPONSE_END\n");
-        responseWriter.flush();
+    private void responseSuccess() throws IOException {
+        outputStream.writeInt(DiscoveryResponseType.Success.ordinal());
+        outputStream.flush();
     }
 
-    private void responseWait(){
-        responseWriter.printf("%s\n", DiscoveryResponseType.Wait);
-        responseWriter.printf("RESPONSE_END\n");
-        responseWriter.flush();
+    private void responseWait() throws IOException {
+        outputStream.writeInt(DiscoveryResponseType.Wait.ordinal());
+        outputStream.flush();
     }
 
-    private void responseError(String message){
-        responseWriter.printf("%s\n", DiscoveryResponseType.Error);
-        responseWriter.printf("%s\n", message);
-        responseWriter.printf("RESPONSE_END\n");
-        responseWriter.flush();
+    private void responseError(String message) throws IOException {
+        outputStream.writeInt(DiscoveryResponseType.Error.ordinal());
+        outputStream.writeInt(message.length());
+        outputStream.writeBytes(message);
+        outputStream.flush();
     }
 
     /*

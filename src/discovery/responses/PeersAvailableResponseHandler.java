@@ -1,9 +1,11 @@
 package discovery.responses;
 
 import peers.PeerInfo;
+import peers.PeerMapper;
 import peers.communication.PeerRequestType;
 
-import java.io.PrintWriter;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.Collection;
 
 public class PeersAvailableResponseHandler extends ResponseHandler {
@@ -15,15 +17,17 @@ public class PeersAvailableResponseHandler extends ResponseHandler {
     }
 
     @Override
-    protected void writeResponse(PrintWriter response) {
-        response.println(PeerRequestType.AcceptPeers.toString());
-        availablePeers.stream().map(PeersAvailableResponseHandler::serializePeer).forEach(response::println);
-    }
+    protected void writeResponse(DataOutputStream response) throws IOException {
+        response.writeInt(PeerRequestType.AcceptPeers.ordinal());
+        response.writeInt(availablePeers.size());
 
-    private static String serializePeer(PeerInfo peer){
-        String ipAddress = peer.getIpAddress();
-        int port = peer.getPort();
-
-        return String.format("%s|%d", ipAddress, port);
+        availablePeers.stream().map(PeerMapper::asBytes).forEach(peer -> {
+            try {
+                response.writeInt(peer.length);
+                response.write(peer);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 }

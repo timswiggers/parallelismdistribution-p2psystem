@@ -52,7 +52,7 @@ public class GetCommand implements Command {
         PeerIndex peerIndex = new PeerIndex(files);
         PeerInfo peerInfo = peerIndex.get(fileEntry.getPeerName());
 
-        RemoteVault vault = network.getVaultForPeer(peerInfo);
+        RemoteVault vault = new RemoteVault(peerInfo);
         boolean couldConnect = vault.ping();
         if(!couldConnect){
             user.sayError("Could not connect to peer owner of the file");

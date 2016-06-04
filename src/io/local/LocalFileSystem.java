@@ -62,7 +62,7 @@ public class LocalFileSystem implements FileAccess {
 
     private String resolvePath(String fileName) {
 
-        // TODO: Handle relative or absolute path
+        // TODO: Handle relative or absolute path -- To test
         String localRoot = appRoot.toString();
 
         return Paths.get(localRoot, fileName).toAbsolutePath().toString();

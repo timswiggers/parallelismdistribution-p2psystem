@@ -2,9 +2,8 @@ package discovery.responses;
 
 import peers.PeerInfo;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
@@ -32,13 +31,12 @@ public abstract class ResponseHandler extends Thread {
         try (Socket socket = new Socket()){
             socket.connect(address);
 
-            try (PrintWriter writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()))){
-                writeResponse(writer);
-                writer.println("RESPONSE_END");
-                writer.flush();
+            try (DataOutputStream out = new DataOutputStream(socket.getOutputStream())){
+                writeResponse(out);
+                out.flush();
             }
         }
     }
 
-    protected abstract void writeResponse(PrintWriter response);
+    protected abstract void writeResponse(DataOutputStream response) throws IOException;
 }
