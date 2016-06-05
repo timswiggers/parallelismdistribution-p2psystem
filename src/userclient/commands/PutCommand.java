@@ -67,7 +67,7 @@ public class PutCommand implements Command {
         user.say("done!");
 
         user.sayPartly("Hashing the file... ");
-        BytesHasher hasher = new SHA256MerkleBytesHasher(1000 * 1000, true);
+        BytesHasher hasher = new SHA256MerkleBytesHasher(100 * 1000, true);
         byte[] hash = hasher.hash(encryptedFile);
         user.say("done!");
 

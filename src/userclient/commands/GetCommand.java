@@ -67,7 +67,7 @@ public class GetCommand implements Command {
         user.say("done!");
 
         user.sayPartly("Comparing hash... ");
-        BytesHasher hasher = new SHA256MerkleBytesHasher(1000 * 1000, true);
+        BytesHasher hasher = new SHA256MerkleBytesHasher(100 * 1000, true);
         byte[] downloadedFileHash = hasher.hash(encryptedBytes);
         byte[] originalHash = fileEntry.getHash();
 

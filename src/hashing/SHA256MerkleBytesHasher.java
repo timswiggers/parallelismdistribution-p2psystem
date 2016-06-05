@@ -14,6 +14,12 @@ public class SHA256MerkleBytesHasher implements BytesHasher {
 
     private final ForkJoinPool pool;
 
+    public SHA256MerkleBytesHasher(int granularity, boolean parallelize, int parallelism) {
+        this.granularity = granularity;
+        this.parallelize = parallelize;
+        pool = new ForkJoinPool(parallelism);
+    }
+
     public SHA256MerkleBytesHasher(int granularity, boolean parallelize) {
         this.granularity = granularity;
         this.parallelize = parallelize;

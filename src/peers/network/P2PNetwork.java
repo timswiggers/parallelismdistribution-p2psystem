@@ -7,9 +7,11 @@ import peers.networkclient.CommunicationClient;
 import peers.selector.SuccessfullPingSelector;
 import peers.selector.PeerSelector;
 import userclient.UserInteraction;
+import vault.VaultClient;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class P2PNetwork {
     private final PeerIndex peerIndex;
@@ -100,7 +102,10 @@ public class P2PNetwork {
     }
 
     private Collection<PeerInfo> doHealthCheckOn(Collection<PeerInfo> peers) {
-        return peers; // TODO: only return health peers, for now none are healthy
+        return peers.stream().filter(peer -> {
+            VaultClient vault = new VaultClient(peer);
+            return vault.ping();
+        }).collect(Collectors.toList());
     }
 
     private void runPeriodicHealthChecks() {
@@ -119,21 +124,12 @@ public class P2PNetwork {
         }, fiveMinutes, fiveMinutes);
     }
 
-    /*private void resupplyPeers() {
-        try {
+    public Optional<PeerInfo> givePeerForFilePut() throws IOException {
+        Optional<PeerInfo> peer = peerSelector.select();
+        if(peer == null || !peer.isPresent()) {
             discoveryClient.requestPeers();
-
-            for(PeerInfo peer : newPeers){
-                peerIndex.add(peer);
-            }
-        } catch (JAXBException |IOException e) {
-            System.out.println("\nCould not connect to discoveryserver server: " + e.getMessage());
-            e.printStackTrace();
         }
-    }*/
-
-    public Optional<PeerInfo> givePeerForFilePut() {
-        return peerSelector.select();
+        return peer;
     }
 
     public Collection<PeerInfo> listPeers(){

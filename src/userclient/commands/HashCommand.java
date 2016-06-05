@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class HashCommand implements Command {
     private final FileAccess files;
@@ -28,7 +30,7 @@ public class HashCommand implements Command {
     }
 
     private void executeHash(UserInteraction user) throws IOException, NoSuchAlgorithmException {
-        String fileName = user.askForValue("filename", "..\\383MB.exe");
+        String fileName = user.askForValue("filename", "..\\136MB.pdf");
         if(fileName == null) {
             return;
         }
@@ -39,18 +41,24 @@ public class HashCommand implements Command {
             return;
         }
 
-        int granularity = Integer.parseInt(user.askForValue("granularity", "100"));
+        int granularity = Integer.parseInt(user.askForValue("granularity", "100000"));
+        int parallelism = Integer.parseInt(user.askForValue("parallelism", "4"));
         boolean parallelize = user.askYesNoQuestion("Parallelize the algorithm");
+        int times = Integer.parseInt(user.askForValue("how many times", "10"));
 
-        BytesHasher hasher = new SHA256MerkleBytesHasher(granularity, parallelize);
+        BytesHasher hasher = new SHA256MerkleBytesHasher(granularity, parallelize, parallelism);
 
         Instant startTime = Instant.now();
-        byte[] hash = hasher.hash(bytes);
-        Instant endTime = Instant.now();
+        byte[] hash = null;
 
+        for(int i = 0; i < times; i++) {
+            hash = hasher.hash(bytes);
+        }
+
+        Instant endTime = Instant.now();
         Duration totalTime = Duration.between(startTime, endTime);
 
-        user.say(String.format("%s (%s)", BytesAsHex.toString(hash), toPrettyString(totalTime)));
+        user.say(String.format("%s (%s, avg of %d run(s))", BytesAsHex.toString(hash), toPrettyString(totalTime.dividedBy(times)), times));
     }
 
     private String toPrettyString(Duration duration){
