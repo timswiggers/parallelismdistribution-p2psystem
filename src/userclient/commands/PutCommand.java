@@ -64,7 +64,7 @@ public class PutCommand implements Command {
         byte[] key = Encryptor.generateKey();
         byte[] initVector = Encryptor.generateInitVector();
         byte[] encryptedFile = Encryptor.encrypt(key, initVector, bytes);
-        user.say("Done!");
+        user.say("done!");
 
         user.sayPartly("Hashing the file... ");
         BytesHasher hasher = new SHA256MerkleBytesHasher(1000 * 1000, true);

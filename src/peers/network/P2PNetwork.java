@@ -63,7 +63,7 @@ public class P2PNetwork {
         try{
             disconnectSafe();
             networkState = NetworkState.Disconnected;
-        } catch(IOException e){
+        } catch(IOException | InterruptedException e){
             e.printStackTrace();
             networkState = NetworkState.Connected;
         }
@@ -84,15 +84,11 @@ public class P2PNetwork {
         }
     }
 
-    private void disconnectSafe() throws IOException {
+    private void disconnectSafe() throws IOException, InterruptedException {
         networkHealthCheckTimer.cancel();
         networkHealthCheckTimer.purge();
-        communicationClient.stopRunning();
-        communicationClient.interrupt();
-        boolean successfullyLeft = discoveryClient.leavePeers();
-        if(!successfullyLeft){
-            throw new RuntimeException("Could not connect to the discoveryserver client");
-        }
+        communicationClient.stopServer();
+        discoveryClient.leavePeers();
         networkState = NetworkState.Disconnected;
     }
 

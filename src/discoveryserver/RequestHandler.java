@@ -1,7 +1,9 @@
 package discoveryserver;
 
-import discoveryserver.responses.PeersAvailableResponseHandler;
-import discoveryserver.responses.ResponseHandler;
+import common.Request;
+import common.Response;
+import discoveryserver.responsehandlers.PeersAvailableResponseHandler;
+import discoveryserver.responsehandlers.ResponseHandler;
 import peers.PeerInfo;
 
 import java.io.*;
@@ -18,11 +20,7 @@ class RequestHandler extends Thread {
     private final ConcurrentLinkedQueue<PeerInfo> peersWaitingForPeersQueue;
     private final Socket socket;
 
-    private PeerInfo requester;
-    private DataInputStream inputStream;
-    private DataOutputStream outputStream;
-
-    public RequestHandler(Socket socket, CopyOnWriteArrayList<PeerInfo> peers, ConcurrentLinkedQueue<PeerInfo> peersWaitingForPeersQueue) throws IOException {
+    public RequestHandler(Socket socket, CopyOnWriteArrayList<PeerInfo> peers, ConcurrentLinkedQueue<PeerInfo> peersWaitingForPeersQueue) {
         super("Discovery.RequestHandler");
         this.socket = socket;
         this.peers = peers;
@@ -31,50 +29,56 @@ class RequestHandler extends Thread {
 
     @Override
     public void run() {
-        try {
-            this.inputStream = new DataInputStream(socket.getInputStream());
-            this.outputStream = new DataOutputStream(socket.getOutputStream());
+        try(DataInputStream inputStream = new DataInputStream(socket.getInputStream());
+            DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream())) {
 
-            handleRequest();
+            Request request = new Request(inputStream);
+            Response response = new Response(outputStream);
+
+            routeRequest(request, response);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     /*
-    * Client Request Router
+    * Request Router
     * */
 
-    private void handleRequest() throws IOException {
+    private void routeRequest(Request request, Response response) throws IOException {
+        // Parse request
         String peerAddress = socket.getInetAddress().getHostAddress();
-        int peerPort = inputStream.readInt();
+        int peerPort = request.getIntParameter();
+        PeerInfo requester = getOrCreateRequesterPeer(peerAddress, peerPort);
 
-        requester = getOrCreateRequesterPeer(peerAddress, peerPort);
-        DiscoveryRequestType commandType = DiscoveryRequestType.values()[inputStream.readInt()];
+        DiscoveryRequestType commandType = DiscoveryRequestType.values()[request.getIntParameter()];
 
+        // Route request
         switch(commandType) {
-            case Join: { handleJoin(); break; }
-            case Leave: { handleLeave(); break; }
-            case RequestPeers: { handleRequestPeers(); break; }
+            case Join: { handleJoin(response, requester); break; }
+            case Leave: { handleLeave(response, requester); break; }
+            case RequestPeers: { handleRequestPeers(response, requester); break; }
             default: {
-                responseError("Cannot handle command: " + commandType.toString());
+                response.error("Cannot handle command: " + commandType.toString());
                 break;
             }
         }
     }
 
     /*
-    * Client Request: Join
+    * Peer Request: Join
     * */
 
-    private void handleJoin() throws IOException {
+    private void handleJoin(Response response, PeerInfo requester) throws IOException {
+        // Handle request
         if(peerAlreadyJoined(requester)){
-            responseSuccess();
+            response.success();
             return; // don't add this peer twice
         }
 
         peers.add(requester);
-        responseSuccess();
+        response.success();
 
         if(!peersWaitingForPeersQueue.isEmpty() && peers.size() > 3){
             respondWaitingPeers();
@@ -84,12 +88,13 @@ class RequestHandler extends Thread {
     }
 
     /*
-    * Client Request: Leave
+    * Peer Request: Leave
     * */
 
-    private void handleLeave() throws IOException {
+    private void handleLeave(Response response, PeerInfo requester) throws IOException {
+        // Handle request
         if (requester == null) {
-            responseSuccess();
+            response.success();
             return;
         }
 
@@ -97,18 +102,20 @@ class RequestHandler extends Thread {
             peers.remove(requester);
         }
 
-        responseSuccess();
+        // Send response
+        response.success();
 
         System.out.printf("%s | Peer left the network: %s\n", new Date(), requester.getName());
     }
 
     /*
-    * Client Request: RequestPeers
+    * Peer Request: RequestPeers
     * */
 
-    private void handleRequestPeers() throws IOException {
+    private void handleRequestPeers(Response response, PeerInfo requester) throws IOException {
+        // Handle request
         if (requester == null) {
-            responseError("First you have to join the network before you can request any peers");
+            response.error("First you have to join the network before you can request any peers");
             return;
         }
 
@@ -118,7 +125,7 @@ class RequestHandler extends Thread {
 
         Collection<PeerInfo> availablePeers = peersWithout(requester);
         if(availablePeers.size() >= 3){
-            responseSuccess();
+            response.success();
 
             ResponseHandler responseHandler = new PeersAvailableResponseHandler(requester, availablePeers);
             responseHandler.start();
@@ -129,7 +136,9 @@ class RequestHandler extends Thread {
         }
 
         peersWaitingForPeersQueue.add(requester);
-        responseWait();
+
+        // Send response
+        response.waiting();
 
         System.out.printf("%s | Peers requested: by %s but only %d available, waiting for more.\n", new Date(), requester.getName(), availablePeers.size());
     }
@@ -143,33 +152,16 @@ class RequestHandler extends Thread {
         }
     }
 
-    private Collection<PeerInfo> peersWithout(PeerInfo self){
-        return peers.stream().filter(p -> !p.equals(self)).collect(Collectors.toList());
-    }
-
-    private void responseSuccess() throws IOException {
-        outputStream.writeInt(DiscoveryResponseType.Success.ordinal());
-        outputStream.flush();
-    }
-
-    private void responseWait() throws IOException {
-        outputStream.writeInt(DiscoveryResponseType.Wait.ordinal());
-        outputStream.flush();
-    }
-
-    private void responseError(String message) throws IOException {
-        outputStream.writeInt(DiscoveryResponseType.Error.ordinal());
-        outputStream.writeInt(message.length());
-        outputStream.writeBytes(message);
-        outputStream.flush();
-    }
-
     /*
     * Helper Methods
     * */
 
     private boolean peerAlreadyJoined(PeerInfo peer){
         return peers.stream().anyMatch(peer::equals);
+    }
+
+    private Collection<PeerInfo> peersWithout(PeerInfo self){
+        return peers.stream().filter(p -> !p.equals(self)).collect(Collectors.toList());
     }
 
     private PeerInfo getOrCreateRequesterPeer(String requesterIpAddress, int requesterCommunicationPort){

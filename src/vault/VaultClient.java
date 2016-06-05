@@ -1,9 +1,9 @@
 package vault;
 
+import common.ResponseCode;
 import peers.PeerInfo;
 import peers.PeerMapper;
 import peers.networkclient.PeerRequestType;
-import peers.networkclient.PeerResponseType;
 
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -31,9 +31,9 @@ public class VaultClient {
                 outputStream.flush();
 
                 // Get response
-                PeerResponseType response = PeerResponseType.values()[inputStream.readInt()];
+                ResponseCode response = ResponseCode.values()[inputStream.readInt()];
 
-                if(response == PeerResponseType.Error){
+                if(response == ResponseCode.Error){
                     return false;
                 }
             }
@@ -70,9 +70,9 @@ public class VaultClient {
                 outputStream.flush();
 
                 // Get response
-                PeerResponseType response = PeerResponseType.values()[inputStream.readInt()];
+                ResponseCode response = ResponseCode.values()[inputStream.readInt()];
 
-                if(response == PeerResponseType.Error){
+                if(response == ResponseCode.Error){
                     byte[] messageBytes = new byte[inputStream.readInt()];
                     inputStream.readFully(messageBytes);
                     String message = new String(messageBytes);
@@ -106,16 +106,16 @@ public class VaultClient {
                 outputStream.flush();
 
                 // Get response
-                PeerResponseType response = PeerResponseType.values()[inputStream.readInt()];
+                ResponseCode response = ResponseCode.values()[inputStream.readInt()];
 
-                if(response == PeerResponseType.File){
+                if(response == ResponseCode.File){
 
                     byte[] fileBytes = new byte[inputStream.readInt()];
                     inputStream.readFully(fileBytes);
 
                     return fileBytes;
 
-                } else if(response == PeerResponseType.Error) {
+                } else if(response == ResponseCode.Error) {
                     byte[] messageBytes = new byte[inputStream.readInt()];
                     inputStream.readFully(messageBytes);
                     String message = new String(messageBytes);

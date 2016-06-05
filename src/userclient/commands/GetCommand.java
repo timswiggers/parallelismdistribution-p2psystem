@@ -66,7 +66,7 @@ public class GetCommand implements Command {
         }
         user.say("done!");
 
-        user.say("Comparing hash... ");
+        user.sayPartly("Comparing hash... ");
         BytesHasher hasher = new SHA256MerkleBytesHasher(1000 * 1000, true);
         byte[] downloadedFileHash = hasher.hash(encryptedBytes);
         byte[] originalHash = fileEntry.getHash();
@@ -78,13 +78,17 @@ public class GetCommand implements Command {
             user.say(String.format("Download hash: %s", BytesAsHex.toString(downloadedFileHash)));
             return;
         }
-        user.say("OK!");
+        user.say("ok!");
 
+        user.sayPartly("Decrypting the file... ");
         byte[] key = fileEntry.getKey();
         byte[] initVector = fileEntry.getIV();
         byte[] decryptedBytes = Encryptor.decrypt(key, initVector, encryptedBytes);
+        user.say("done!");
 
+        user.sayPartly("Saving the file... ");
         files.saveFileBytes(fileEntry.getName(), decryptedBytes);
+        user.say("done!");
 
         user.say("The file was successfully downloaded");
     }

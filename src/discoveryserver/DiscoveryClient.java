@@ -1,5 +1,7 @@
 package discoveryserver;
 
+import common.ResponseCode;
+
 import java.io.*;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -17,18 +19,20 @@ public class DiscoveryClient {
     }
 
     public boolean joinPeers() throws IOException {
-        return send(DiscoveryRequestType.Join) == DiscoveryResponseType.Success;
+        return send(DiscoveryRequestType.Join) == ResponseCode.Success;
     }
 
     public boolean leavePeers() throws IOException {
-        return send(DiscoveryRequestType.Leave) == DiscoveryResponseType.Success;
+        try {
+            return send(DiscoveryRequestType.Leave) == ResponseCode.Success;
+        } catch(IOException e){ return false; }
     }
 
     public boolean requestPeers() throws IOException {
-        return send(DiscoveryRequestType.RequestPeers) == DiscoveryResponseType.Success;
+        return send(DiscoveryRequestType.RequestPeers) == ResponseCode.Success;
     }
 
-    private DiscoveryResponseType send(DiscoveryRequestType command) throws IOException {
+    private ResponseCode send(DiscoveryRequestType command) throws IOException {
         InetSocketAddress address = new InetSocketAddress(serverAddress, serverPort);
 
         try (Socket socket = new Socket()) {
@@ -44,9 +48,9 @@ public class DiscoveryClient {
                 outputStream.flush();
 
                 // Get response
-                DiscoveryResponseType response = DiscoveryResponseType.values()[inputStream.readInt()];
+                ResponseCode response = ResponseCode.values()[inputStream.readInt()];
 
-                if(response == DiscoveryResponseType.Error){
+                if(response == ResponseCode.Error){
                     byte[] messageBytes = new byte[inputStream.readInt()];
                     inputStream.readFully(messageBytes);
                     String message = new String(messageBytes);
