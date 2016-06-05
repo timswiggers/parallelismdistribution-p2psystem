@@ -1,7 +1,7 @@
 import discoveryserver.DiscoveryClient;
 import filesystem.FileSystemIndex;
 import peers.PeerIndex;
-import peers.networkclient.CommunicationClient;
+import peers.networkclient.PeerServer;
 import peers.network.P2PNetwork;
 import userclient.UserInteraction;
 import userclient.console.CommandExecutor;
@@ -39,12 +39,12 @@ public class ConsoleClient {
             Vault vault = new Vault(vaultRoot);
 
             // We use the DiscoveryClient to send requests to the discoveryserver server
-            // We use the CommunicationClient to receive responses from the network (peers & discoveryserver server)
+            // We use the PeerServer to receive responses from the network (other peers & discoveryserver server)
             DiscoveryClient discoveryClient = new DiscoveryClient(clientPort, InetAddress.getLocalHost(), DiscoveryService.port);
-            CommunicationClient communicationClient = new CommunicationClient(clientPort, peers, vault);
+            PeerServer peerServer = new PeerServer(clientPort, peers, vault);
 
             // We connect to the P2P network by registering this client with the discoveryserver server.
-            P2PNetwork network = new P2PNetwork(user, peers, discoveryClient, communicationClient);
+            P2PNetwork network = new P2PNetwork(user, peers, discoveryClient, peerServer);
             user.sayPartly("Connecting to the network... ");
             network.connect();
             user.say("connected!\n");
@@ -59,6 +59,8 @@ public class ConsoleClient {
 
             // Now we loop until the user issues the quit command
             commandExecutor.executeUserCommands();
+
+            // The user issued the quit command
             network.disconnect();
 
         } catch(Exception e){

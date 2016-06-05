@@ -36,20 +36,22 @@ public class GetCommand implements Command {
     }
 
     private void executeGet(UserInteraction user) throws IOException, JAXBException, NoSuchAlgorithmException {
+        // Ask the user what file we want to get
         String fileName = user.askForValue("filename", "383MB.exe");
         if(fileName == null) {
             return;
         }
 
+        // Search the file in the list of files we stored
         if(!fileIndex.contains(fileName)) {
             user.sayError("The file system does not contain a file named '" + fileName + "'");
             return;
         }
 
-        // Search the file in the list of files we stored
         FileSystemEntry fileEntry = fileIndex.get(fileName);
         PeerInfo peerInfo = fileEntry.getPeer();
 
+        // Try to establish communication with the peer that holds the file
         VaultClient vault = new VaultClient(peerInfo);
         boolean couldConnect = vault.ping();
         if(!couldConnect){
@@ -67,7 +69,7 @@ public class GetCommand implements Command {
         user.say("done!");
 
         user.sayPartly("Comparing hash... ");
-        BytesHasher hasher = new SHA256MerkleBytesHasher(100 * 1000, true);
+        BytesHasher hasher = new SHA256MerkleBytesHasher();
         byte[] downloadedFileHash = hasher.hash(encryptedBytes);
         byte[] originalHash = fileEntry.getHash();
 

@@ -6,11 +6,11 @@ import vault.Vault;
 
 import java.net.Socket;
 
-public class CommunicationClient extends Server {
+public class PeerServer extends Server {
     private final PeerIndex peers;
     private final Vault vault;
 
-    public CommunicationClient(int port, PeerIndex peers, Vault vault) {
+    public PeerServer(int port, PeerIndex peers, Vault vault) {
         super(port);
 
         this.peers = peers;

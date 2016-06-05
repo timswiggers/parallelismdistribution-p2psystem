@@ -7,16 +7,12 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import java.security.SecureRandom;
 
 // Credits: http://stackoverflow.com/questions/15554296/simple-java-aes-encrypt-decrypt-example
 
 public class Encryptor {
-    private static final String Encoding = "UTF-8";
     private static final String CipherTransformation = "AES/CBC/PKCS5PADDING";
     private static final String CipherKeySpec = "AES";
-
-    private static final SecureRandom random = new SecureRandom();
 
     private Encryptor(){ }
 

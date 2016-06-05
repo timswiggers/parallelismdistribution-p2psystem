@@ -28,8 +28,8 @@ public class DiscoveryClient {
         } catch(IOException e){ return false; }
     }
 
-    public boolean requestPeers() throws IOException {
-        return send(DiscoveryRequestType.RequestPeers) == ResponseCode.Success;
+    public ResponseCode requestPeers() throws IOException {
+        return send(DiscoveryRequestType.RequestPeers);
     }
 
     private ResponseCode send(DiscoveryRequestType command) throws IOException {

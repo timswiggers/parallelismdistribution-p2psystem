@@ -23,7 +23,7 @@ public final class BytesAsHex {
         return sb.toString();
     }
 
-    public static void print(byte[] bytes, PrintStream out){
+    public static void println(byte[] bytes, PrintStream out){
         out.print(toString(bytes) + "\n");
     }
 }

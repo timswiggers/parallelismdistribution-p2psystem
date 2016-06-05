@@ -4,6 +4,7 @@ import common.Request;
 import common.Response;
 import peers.PeerIndex;
 import peers.PeerInfo;
+import peers.network.P2PNetwork;
 import vault.Vault;
 
 import javax.xml.bind.JAXBException;
@@ -14,12 +15,14 @@ class RequestHandler extends Thread {
     private final Socket socket;
     private final PeerIndex peers;
     private final Vault vault;
+    private final P2PNetwork network;
 
-    public RequestHandler(Socket socket, PeerIndex peers, Vault vault) {
+    public RequestHandler(Socket socket, PeerIndex peers, Vault vault, P2PNetwork network) {
         super("Peer.Communication.RequestHandler");
         this.socket = socket;
         this.peers = peers;
         this.vault = vault;
+        this.network = network;
     }
 
     @Override
@@ -71,6 +74,8 @@ class RequestHandler extends Thread {
             PeerInfo peer = request.getPeerParameter();
             peers.add(peer);
         }
+
+        network.peersWereAccepted();
     }
 
     /*

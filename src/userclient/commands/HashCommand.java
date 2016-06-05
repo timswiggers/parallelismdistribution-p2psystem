@@ -30,17 +30,20 @@ public class HashCommand implements Command {
     }
 
     private void executeHash(UserInteraction user) throws IOException, NoSuchAlgorithmException {
+        // Ask for the filename
         String fileName = user.askForValue("filename", "..\\136MB.pdf");
         if(fileName == null) {
             return;
         }
 
+        // Load the file
         byte[] bytes = files.getFileBytes(fileName);
         if(bytes == null || bytes.length < 0) {
             user.say(String.format("File '%s' was not found.", fileName));
             return;
         }
 
+        // Get hash settings
         int granularity = Integer.parseInt(user.askForValue("granularity", "100000"));
         int parallelism = Integer.parseInt(user.askForValue("parallelism", "4"));
         boolean parallelize = user.askYesNoQuestion("Parallelize the algorithm");
@@ -48,17 +51,19 @@ public class HashCommand implements Command {
 
         BytesHasher hasher = new SHA256MerkleBytesHasher(granularity, parallelize, parallelism);
 
+        // Calculate the hash a number of times
         Instant startTime = Instant.now();
         byte[] hash = null;
-
         for(int i = 0; i < times; i++) {
             hash = hasher.hash(bytes);
         }
 
+        // Calculate the averate hash duration
         Instant endTime = Instant.now();
         Duration totalTime = Duration.between(startTime, endTime);
+        Duration averageDuration = totalTime.dividedBy(times);
 
-        user.say(String.format("%s (%s, avg of %d run(s))", BytesAsHex.toString(hash), toPrettyString(totalTime.dividedBy(times)), times));
+        user.say(String.format("%s (%s, avg of %d run(s))", BytesAsHex.toString(hash), toPrettyString(averageDuration), times));
     }
 
     private String toPrettyString(Duration duration){

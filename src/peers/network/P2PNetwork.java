@@ -1,9 +1,10 @@
 package peers.network;
 
+import common.ResponseCode;
 import discoveryserver.DiscoveryClient;
 import peers.PeerIndex;
 import peers.PeerInfo;
-import peers.networkclient.CommunicationClient;
+import peers.networkclient.PeerServer;
 import peers.selector.SuccessfullPingSelector;
 import peers.selector.PeerSelector;
 import userclient.UserInteraction;
@@ -17,10 +18,11 @@ public class P2PNetwork {
     private final PeerIndex peerIndex;
     private final PeerSelector peerSelector;
     private final DiscoveryClient discoveryClient;
-    private final CommunicationClient communicationClient;
+    private final PeerServer peerServer;
     private final UserInteraction user;
 
     private NetworkState networkState;
+    private ResponseCode lastPeersRequestResponseCode;
     private Timer networkHealthCheckTimer;
 
     enum NetworkState{
@@ -30,11 +32,11 @@ public class P2PNetwork {
         Connected
     }
 
-    public P2PNetwork(UserInteraction user, PeerIndex peers, DiscoveryClient discoveryClient, CommunicationClient communicationClient) {
+    public P2PNetwork(UserInteraction user, PeerIndex peers, DiscoveryClient discoveryClient, PeerServer peerServer) {
         this.user = user;
         this.peerIndex = peers;
         this.discoveryClient = discoveryClient;
-        this.communicationClient = communicationClient;
+        this.peerServer = peerServer;
         this.peerSelector = new SuccessfullPingSelector(this);
         this.networkState  = NetworkState.Disconnected;
         this.networkHealthCheckTimer = new Timer();
@@ -73,7 +75,7 @@ public class P2PNetwork {
 
     private void connectSafe() throws IOException {
 
-        communicationClient.start();
+        peerServer.start();
         boolean successfullyJoined = discoveryClient.joinPeers();
         if(!successfullyJoined){
             throw new RuntimeException("Could not connect to the discovery client");
@@ -81,15 +83,14 @@ public class P2PNetwork {
 
         boolean networkIsHealthy = doHealthCheck();
         if (!networkIsHealthy) {
-            boolean peersAvailable = discoveryClient.requestPeers();
-            // TODO: notify when Wait returned and we have to wait for peers
+            requestPeers();
         }
     }
 
     private void disconnectSafe() throws IOException, InterruptedException {
         networkHealthCheckTimer.cancel();
         networkHealthCheckTimer.purge();
-        communicationClient.stopServer();
+        peerServer.stopServer();
         discoveryClient.leavePeers();
         networkState = NetworkState.Disconnected;
     }
@@ -114,10 +115,13 @@ public class P2PNetwork {
         networkHealthCheckTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
+                if(lastPeersRequestResponseCode == ResponseCode.Waiting){
+                    return; // We're already waiting for peers, no need to send another request
+                }
                 boolean networkIsHealthy = doHealthCheck();
                 if (!networkIsHealthy) {
                     try {
-                        discoveryClient.requestPeers();
+                        requestPeers();
                     } catch (IOException e) { /* swallow */ }
                 }
             }
@@ -127,12 +131,22 @@ public class P2PNetwork {
     public Optional<PeerInfo> givePeerForFilePut() throws IOException {
         Optional<PeerInfo> peer = peerSelector.select();
         if(peer == null || !peer.isPresent()) {
-            discoveryClient.requestPeers();
+            requestPeers();
         }
         return peer;
     }
 
     public Collection<PeerInfo> listPeers(){
         return peerIndex.list();
+    }
+
+    private void requestPeers() throws IOException {
+        lastPeersRequestResponseCode = discoveryClient.requestPeers();
+    }
+
+    public void peersWereAccepted() {
+        // This will enable the network to request more peers if needed.
+        // It was possible waiting before, which would have prevented new peer requests.
+        lastPeersRequestResponseCode = ResponseCode.Success;
     }
 }

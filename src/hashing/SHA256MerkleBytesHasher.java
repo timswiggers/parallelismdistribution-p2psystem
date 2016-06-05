@@ -19,10 +19,9 @@ public class SHA256MerkleBytesHasher implements BytesHasher {
         this.parallelize = parallelize;
         pool = new ForkJoinPool(parallelism);
     }
-
-    public SHA256MerkleBytesHasher(int granularity, boolean parallelize) {
-        this.granularity = granularity;
-        this.parallelize = parallelize;
+    public SHA256MerkleBytesHasher() {
+        this.granularity = 100 * 1000;
+        this.parallelize = true;
         pool = ForkJoinPool.commonPool();
     }
 
@@ -64,6 +63,8 @@ public class SHA256MerkleBytesHasher implements BytesHasher {
                 return digest.digest(slice);
             }
 
+            // Use the MessageDigest instance from this node already in the left node, we can safe the construction cost
+            // this way. We have to reset it before we use it for ourselves though.
             HashTask leftTask = new HashTask(bytes, low, (high+low)/2, digest, cutOff, parallelize);
             HashTask rightTask = new HashTask(bytes, (high+low)/2, high, SHA256MerkleBytesHasher.getDigestInstance(), cutOff, parallelize);
 
@@ -90,5 +91,4 @@ public class SHA256MerkleBytesHasher implements BytesHasher {
     private static MessageDigest getDigestInstance() throws NoSuchAlgorithmException {
         return MessageDigest.getInstance(HashAlgorithm);
     }
-
 }

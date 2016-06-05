@@ -29,6 +29,7 @@ public class ListCommand implements Command {
     }
 
     public void executeList(UserInteraction user) throws IOException, JAXBException {
+        // Get all files from the index
         Collection<FileSystemEntry> entries = fileIndex.list();
         List<String> entriesAsStrings = entries.stream().map(ListCommand::toPrettyString).collect(Collectors.toList());
 

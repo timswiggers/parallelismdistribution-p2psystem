@@ -39,11 +39,13 @@ public class PutCommand implements Command {
     }
 
     private void executePut(UserInteraction user) throws IOException, JAXBException, NoSuchAlgorithmException, NoSuchProviderException {
+        // Ask the user what file we want to put
         String fileName = user.askForValue("filename", "..\\383MB.exe");
         if(fileName == null) {
             return;
         }
 
+        // Ensure we did not already put the file
         String fileKey = files.getName(fileName);
         if(fileIndex.contains(fileKey)) {
             user.say("This file is already stored on the file system");
@@ -67,7 +69,7 @@ public class PutCommand implements Command {
         user.say("done!");
 
         user.sayPartly("Hashing the file... ");
-        BytesHasher hasher = new SHA256MerkleBytesHasher(100 * 1000, true);
+        BytesHasher hasher = new SHA256MerkleBytesHasher();
         byte[] hash = hasher.hash(encryptedFile);
         user.say("done!");
 
