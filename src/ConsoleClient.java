@@ -46,6 +46,7 @@ public class ConsoleClient {
             // We connect to the P2P network by registering this client with the discoveryserver server.
             P2PNetwork network = new P2PNetwork(user, peers, discoveryClient, peerServer);
             user.sayPartly("Connecting to the network... ");
+            peerServer.setNetwork(network);
             network.connect();
             user.say("connected!\n");
 
