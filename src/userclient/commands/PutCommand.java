@@ -22,8 +22,10 @@ public class PutCommand implements Command {
     private final FileAccess files;
     private final FileSystemIndex fileIndex;
     private final P2PNetwork network;
+    private final PeerInfo thisPeer;
 
-    public PutCommand(FileAccess files, FileSystemIndex fileIndex, P2PNetwork network) {
+    public PutCommand(PeerInfo thisPeer, FileAccess files, FileSystemIndex fileIndex, P2PNetwork network) {
+        this.thisPeer = thisPeer;
         this.files = files;
         this.fileIndex = fileIndex;
         this.network = network;
@@ -83,7 +85,7 @@ public class PutCommand implements Command {
 
         PeerInfo peer = optionalPeer.get();
         VaultClient vault = new VaultClient(peer);
-        vault.uploadFile(fileKey, encryptedFile);
+        vault.uploadFile(thisPeer, fileKey, encryptedFile);
         user.say("done!");
 
         fileIndex.add(new FileSystemEntry(fileKey, size, hash, key, initVector, peer));

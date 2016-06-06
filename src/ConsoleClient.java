@@ -1,6 +1,7 @@
-import discoveryserver.DiscoveryClient;
+import discoveryserver.client.DiscoveryClient;
 import filesystem.FileSystemIndex;
 import peers.PeerIndex;
+import peers.PeerInfo;
 import peers.networkclient.PeerServer;
 import peers.network.P2PNetwork;
 import userclient.UserInteraction;
@@ -44,14 +45,16 @@ public class ConsoleClient {
             PeerServer peerServer = new PeerServer(clientPort, peers, vault);
 
             // We connect to the P2P network by registering this client with the discoveryserver server.
-            P2PNetwork network = new P2PNetwork(user, peers, discoveryClient, peerServer);
+            P2PNetwork network = new P2PNetwork(user, peers, fileIndex, discoveryClient, peerServer);
             user.sayPartly("Connecting to the network... ");
             peerServer.setNetwork(network);
             network.connect();
             user.say("connected!\n");
 
+            PeerInfo thisPeer = network.getThisPeer();
+
             // The command executor accepts command from the console and then executes them
-            CommandExecutor commandExecutor = new CommandExecutor(user, localFiles, fileIndex, network);
+            CommandExecutor commandExecutor = new CommandExecutor(user, thisPeer, localFiles, fileIndex, network);
 
             user.say(
                     "Parallelism and Distributed Systems - Project 2016 - P2P File System\n" +

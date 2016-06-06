@@ -1,11 +1,12 @@
 package peers.network;
 
 import common.ResponseCode;
-import discoveryserver.DiscoveryClient;
+import discoveryserver.client.DiscoveryClient;
+import filesystem.FileSystemIndex;
 import peers.PeerIndex;
 import peers.PeerInfo;
 import peers.networkclient.PeerServer;
-import peers.selector.SuccessfullPingSelector;
+import peers.selector.LeastFilesPeerSelector;
 import peers.selector.PeerSelector;
 import userclient.UserInteraction;
 import vault.VaultClient;
@@ -32,12 +33,12 @@ public class P2PNetwork {
         Connected
     }
 
-    public P2PNetwork(UserInteraction user, PeerIndex peers, DiscoveryClient discoveryClient, PeerServer peerServer) {
+    public P2PNetwork(UserInteraction user, PeerIndex peers, FileSystemIndex fileIndex, DiscoveryClient discoveryClient, PeerServer peerServer) {
         this.user = user;
         this.peerIndex = peers;
         this.discoveryClient = discoveryClient;
         this.peerServer = peerServer;
-        this.peerSelector = new SuccessfullPingSelector(this);
+        this.peerSelector = new LeastFilesPeerSelector(peers, fileIndex);
         this.networkState  = NetworkState.Disconnected;
         this.networkHealthCheckTimer = new Timer();
     }
@@ -95,6 +96,13 @@ public class P2PNetwork {
         networkState = NetworkState.Disconnected;
     }
 
+    public PeerInfo getThisPeer() {
+        String ipAddress = peerServer.getIpAddress();
+        int port = peerServer.getPort();
+
+        return new PeerInfo(ipAddress, port);
+    }
+
     private boolean doHealthCheck(){
         Collection<PeerInfo> peers = peerIndex.list();
         Collection<PeerInfo> healthyPeers = doHealthCheckOn(peers);
@@ -136,17 +144,13 @@ public class P2PNetwork {
         return peer;
     }
 
-    public Collection<PeerInfo> listPeers(){
-        return peerIndex.list();
-    }
-
     private void requestPeers() throws IOException {
         lastPeersRequestResponseCode = discoveryClient.requestPeers();
     }
 
     public void peersWereAccepted() {
         // This will enable the network to request more peers if needed.
-        // It was possible waiting before, which would have prevented new peer requests.
+        // It was possible waiting before, which would have prevented new peer requesthandlers.
         lastPeersRequestResponseCode = ResponseCode.Success;
     }
 }

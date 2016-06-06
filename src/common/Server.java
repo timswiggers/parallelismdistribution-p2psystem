@@ -6,6 +6,7 @@ import java.net.Socket;
 
 public abstract class Server extends Thread {
     private int port;
+    private String ipAddress;
     private ServerSocket server;
     private boolean running;
 
@@ -19,12 +20,13 @@ public abstract class Server extends Thread {
             this.server = server;
             this.running = true;
             this.port = server.getLocalPort();
+            this.ipAddress = server.getInetAddress().getHostAddress();
 
             while (running) {
                 try {
                     Socket requestSocket = server.accept();
 
-                    // Runs the handling of the request in a new thread, allowing other requests to be handled.
+                    // Runs the handling of the request in a new thread, allowing other requesthandlers to be handled.
                     createRequestHandler(requestSocket).start();
 
                 } catch (IOException e) {
@@ -36,6 +38,14 @@ public abstract class Server extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public String getIpAddress() {
+        return ipAddress;
+    }
+
+    public int getPort() {
+        return port;
     }
 
     protected abstract Thread createRequestHandler(Socket requestSocket);

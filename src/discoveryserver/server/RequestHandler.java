@@ -1,9 +1,10 @@
-package discoveryserver;
+package discoveryserver.server;
 
 import common.Request;
 import common.Response;
-import discoveryserver.responsehandlers.PeersAvailableResponseHandler;
-import discoveryserver.responsehandlers.ResponseHandler;
+import discoveryserver.client.DiscoveryRequestType;
+import discoveryserver.server.responsehandlers.PeersAvailableResponseHandler;
+import discoveryserver.server.responsehandlers.ResponseHandler;
 import peers.PeerInfo;
 
 import java.io.*;
@@ -28,8 +29,7 @@ class RequestHandler extends Thread {
     }
 
     @Override
-    public void run() {
-        try(DataInputStream inputStream = new DataInputStream(socket.getInputStream());
+    public void run() {try(DataInputStream inputStream = new DataInputStream(socket.getInputStream());
             DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream())) {
 
             Request request = new Request(inputStream);
@@ -119,6 +119,7 @@ class RequestHandler extends Thread {
             return;
         }
 
+        // If the peer failed to join, add him to the list of available peers anyway
         if(!peers.contains(requester)){
             peers.add(requester);
         }

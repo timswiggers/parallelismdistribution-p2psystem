@@ -1,4 +1,4 @@
-import discoveryserver.*;
+import discoveryserver.server.DiscoveryServer;
 
 import java.io.IOException;
 

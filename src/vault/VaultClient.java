@@ -12,8 +12,8 @@ import java.net.Socket;
 public class VaultClient {
     private final PeerInfo peerInfo;
 
-    public VaultClient(PeerInfo peerInfo) {
-        this.peerInfo = peerInfo;
+    public VaultClient(PeerInfo vaultPeer) {
+        this.peerInfo = vaultPeer;
     }
 
     public boolean ping() {
@@ -44,7 +44,7 @@ public class VaultClient {
         }
     }
 
-    public void uploadFile(String fileName, byte[] bytes) throws IOException {
+    public void uploadFile(PeerInfo thisPeer, String fileName, byte[] bytes) throws IOException {
         InetSocketAddress address = new InetSocketAddress(peerInfo.getIpAddress(), peerInfo.getPort());
 
         try (Socket socket = new Socket()) {
@@ -58,8 +58,8 @@ public class VaultClient {
                 // Parameter: Command
                 outputStream.writeInt(PeerRequestType.UploadFile.ordinal());
                 // Parameter: Peer
-                outputStream.writeInt(PeerMapper.asBytes(peerInfo).length);
-                outputStream.write(PeerMapper.asBytes(peerInfo));
+                outputStream.writeInt(PeerMapper.asBytes(thisPeer).length);
+                outputStream.write(PeerMapper.asBytes(thisPeer));
                 // Parameter: File Name
                 outputStream.writeInt(fileName.length());
                 outputStream.writeBytes(fileName);
@@ -83,7 +83,7 @@ public class VaultClient {
         }
     }
 
-    public byte[] downloadFile(String fileName) throws IOException {
+    public byte[] downloadFile(PeerInfo thisPeer, String fileName) throws IOException {
         InetSocketAddress address = new InetSocketAddress(peerInfo.getIpAddress(), peerInfo.getPort());
 
         try (Socket socket = new Socket()) {
@@ -97,8 +97,8 @@ public class VaultClient {
                 // Parameter: Command
                 outputStream.writeInt(PeerRequestType.DownloadFile.ordinal());
                 // Parameter: Peer
-                outputStream.writeInt(PeerMapper.asBytes(peerInfo).length);
-                outputStream.write(PeerMapper.asBytes(peerInfo));
+                outputStream.writeInt(PeerMapper.asBytes(thisPeer).length);
+                outputStream.write(PeerMapper.asBytes(thisPeer));
                 // Parameter: File Name
                 outputStream.writeInt(fileName.length());
                 outputStream.writeBytes(fileName);

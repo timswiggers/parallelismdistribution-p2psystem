@@ -18,10 +18,12 @@ import java.util.Arrays;
 
 public class GetCommand implements Command {
 
+    private final PeerInfo thisPeer;
     private final FileAccess files;
     private final FileSystemIndex fileIndex;
 
-    public GetCommand(FileAccess files, FileSystemIndex fileIndex) {
+    public GetCommand(PeerInfo thisPeer, FileAccess files, FileSystemIndex fileIndex) {
+        this.thisPeer = thisPeer;
         this.files = files;
         this.fileIndex = fileIndex;
     }
@@ -61,7 +63,7 @@ public class GetCommand implements Command {
         }
 
         user.sayPartly("Downloading file... ");
-        byte[] encryptedBytes = vault.downloadFile(fileEntry.getName());
+        byte[] encryptedBytes = vault.downloadFile(thisPeer, fileEntry.getName());
         if(encryptedBytes == null){
             user.sayError("The peer owner of the file could not locate the file");
             return;

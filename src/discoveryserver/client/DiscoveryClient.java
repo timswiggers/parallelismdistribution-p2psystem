@@ -1,4 +1,4 @@
-package discoveryserver;
+package discoveryserver.client;
 
 import common.ResponseCode;
 
@@ -45,6 +45,7 @@ public class DiscoveryClient {
                 // Send request
                 outputStream.writeInt(clientPort);
                 outputStream.writeInt(command.ordinal());
+
                 outputStream.flush();
 
                 // Get response

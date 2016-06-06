@@ -1,4 +1,4 @@
-package discoveryserver;
+package discoveryserver.client;
 
 public enum DiscoveryRequestType {
     Join,
